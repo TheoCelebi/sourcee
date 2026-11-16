@@ -42,6 +42,19 @@ flowchart LR
 | Traitement | worker planifié (node-cron), embeddings multilingues calculés localement (transformers.js), API Claude pour les résumés |
 | Qualité | Vitest, ESLint, Prettier, GitHub Actions |
 
+## Démarrage
+
+Prérequis : Node.js 22 et Docker.
+
+```bash
+npm install
+cp .env.example .env      # puis compléter les valeurs
+npm run db:up             # PostgreSQL 17 + pgvector en local
+npm run db:migrate
+npm run db:seed           # thèmes, zones, sources et flux
+npm run check             # lint, format, types et tests
+```
+
 ## Documentation
 
 - [Architecture](docs/architecture.md) : règles produit, niveaux d'usage des sources, étapes du traitement, API.

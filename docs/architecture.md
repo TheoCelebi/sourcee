@@ -52,16 +52,18 @@ Le niveau d'usage de chaque source est donc calculé automatiquement, jamais fix
 
 Si une source perd le niveau `open`, ses chapôs déjà stockés sont effacés.
 
-### Sources candidates pour la V1
+### Sources de la V1
 
-| Niveau | Sources |
+Le catalogue complet (flux, langue, groupe, thème et zone par défaut) est dans [`packages/db/src/catalog.ts`](../packages/db/src/catalog.ts). Niveaux attendus d'après le constat du 17 novembre 2026 :
+
+| Niveau attendu | Sources |
 |---|---|
-| `open`, institutions | ONU Info, Commission européenne, Parlement européen, Banque centrale européenne, info.gouv.fr, vie-publique.fr, Élysée, Assemblée nationale, Sénat, Insee, Banque de France, ministère de l'Europe et des Affaires étrangères, OCDE, Unicef, HCR |
-| `open`, médias | Public Sénat, Arte, Africanews, Global Voices, Voice of America, RFE/RL, CNA, South China Morning Post |
+| `open`, institutions | ONU Info, Commission européenne, Parlement européen, Banque centrale européenne, Insee |
+| `open`, médias | Public Sénat, Africanews, Global Voices, Voice of America, RFE/RL, CNA, South China Morning Post |
 | `links_only` | BBC, Le Monde, France 24, RFI, The Guardian, DW, Al Jazeera, NPR, Euronews, Libération |
 | `excluded` | franceinfo, Le Figaro |
 
-Les flux exacts, la langue et le groupe de chaque source sont fixés à l'étape 4a.
+Sans restriction mais sans flux RSS trouvé à ce jour, et donc absents de la V1 : info.gouv.fr, vie-publique.fr, Élysée, Assemblée nationale, Sénat, Banque de France, ministère de l'Europe et des Affaires étrangères, OCDE, Unicef, HCR, Arte.
 
 ### Indépendance
 
@@ -92,7 +94,7 @@ Retiré de la V1 : l'API DOC 2.0 a renvoyé une erreur 429 à chaque essai, les 
 ### Regroupement
 
 - Embedding multilingue du titre, calculé localement (transformers.js, modèle de type `paraphrase-multilingual-MiniLM-L12-v2`, 384 dimensions) : rien n'est envoyé à un service tiers.
-- Rattachement à l'événement le plus proche du même jour (fuseau Europe/Paris) si la similarité cosinus dépasse un seuil calibré sur des données réelles ; sinon, création d'un événement. Index HNSW de pgvector.
+- Rattachement à l'événement le plus proche du même jour (fuseau Europe/Paris), en comparant l'embedding de l'article aux centroïdes des événements (opérateur de distance cosinus de pgvector), si la similarité dépasse un seuil calibré sur des données réelles ; sinon, création d'un événement.
 
 ### Recoupement et classement
 

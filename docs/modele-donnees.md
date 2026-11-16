@@ -1,6 +1,6 @@
 # Modèle de données
 
-PostgreSQL 17 avec les extensions `vector` (pgvector), `unaccent` et `pg_trgm`. Le schéma est écrit avec Drizzle ORM ; les migrations sont versionnées dans `packages/db`.
+PostgreSQL 17 avec les extensions `vector` (pgvector) et `unaccent`. Le schéma est écrit avec Drizzle ORM ([`packages/db/src/schema.ts`](../packages/db/src/schema.ts)) ; les migrations sont versionnées dans `packages/db/drizzle`.
 
 ## Diagramme entité-association
 
@@ -76,6 +76,8 @@ erDiagram
         timestamptz fetched_at
         content_type type "news | opinion | sponsored"
         text agency
+        text[] theme_hints
+        text[] zone_hints
         vector(384) embedding
     }
     EVENTS {
@@ -84,7 +86,7 @@ erDiagram
         text title
         boolean title_from_source
         jsonb summary
-        summary_status summary_status "pending | ok | insufficient | unavailable"
+        summary_status summary_status "pending | ok | insufficient | unavailable | error"
         verification verification "confirmed | single_source"
         smallint independent_origins
         smallint article_count
@@ -92,7 +94,8 @@ erDiagram
         timestamptz first_published_at
         timestamptz last_published_at
         vector(384) centroid
-        tsvector search
+        text search_text
+        tsvector search "générée"
     }
     SUMMARIES {
         bigint id PK
@@ -132,12 +135,12 @@ erDiagram
 
 | Table | Rôle | Points d'attention |
 |---|---|---|
-| `sources` | Un média ou une institution. | `independence_group` sert de clé d'indépendance ; `policy` est recalculé par le contrôle de conformité quotidien. |
+| `sources` | Un média ou une institution. | `independence_group` sert de clé d'indépendance ; `policy` vaut `excluded` jusqu'au premier contrôle de conformité, puis il est recalculé chaque jour. |
 | `policy_checks` | Historique des contrôles robots.txt et TDMRep. | Garde la preuve de chaque décision de niveau d'usage. |
 | `feeds` | Un flux RSS d'une source. | `etag` et `last_modified` pour les requêtes conditionnelles ; thème et zone par défaut déduits de la rubrique du flux. |
 | `fetch_runs` | Journal de chaque collecte. | Sert au suivi des erreurs et des volumes. |
-| `articles` | Un article vu dans un flux. | `url` canonique unique ; `excerpt` vide pour les sources `links_only` ; `embedding` calculé sur le titre seul. |
-| `events` | Un événement d'une journée. | `summary` est un tableau de phrases sourcées ; `search` alimente la recherche par mot-clé. |
+| `articles` | Un article vu dans un flux. | `url` canonique unique ; `excerpt` vide pour les sources `links_only` ; `theme_hints` et `zone_hints` viennent de l'URL et des catégories du flux ; `embedding` calculé sur le titre seul. |
+| `events` | Un événement d'une journée. | `summary` est un tableau de phrases sourcées ; `search` est une colonne générée (sans accents) à partir de `search_text`, qui réunit titre, résumé et titres des articles. |
 | `summaries` | Chaque génération de résumé. | Modèle, version du prompt, articles fournis, phrases rejetées par les contrôles, jetons consommés. |
 | `themes`, `zones` | Listes fermées utilisées par les filtres. | `zones.parent_id` : France est rattachée à Europe. |
 
@@ -146,7 +149,7 @@ erDiagram
 - **Origine d'un article** : `articles.agency` si une agence est détectée, sinon `sources.independence_group`.
 - **`events.independent_origins`** : nombre d'origines distinctes parmi les articles `news` des sources `media`. Les sources officielles ne comptent pas.
 - **`events.verification`** : `confirmed` si `independent_origins >= 2`, sinon `single_source`.
-- **`events.summary`** : `[{ "text": "…", "article_ids": [12, 15] }]`. Chaque phrase cite au moins un article d'une source `open` rattaché à l'événement ; il faut 2 à 4 phrases valides, sinon `summary_status = insufficient`.
+- **`events.summary`** : `[{ "text": "…", "articleIds": [12, 15] }]`. Chaque phrase cite au moins un article d'une source `open` rattaché à l'événement ; il faut 2 à 4 phrases valides, sinon `summary_status = insufficient`.
 - **`events.summary_status = unavailable`** : l'événement n'a aucune source `open` ; aucun appel au modèle, `title_from_source = true`.
 - **`events.score`** : classement du top 10 du jour, calibré à l'étape 4b.
 
@@ -157,10 +160,11 @@ erDiagram
 | `articles (url)` unique | dédoublonnage |
 | `articles (published_at DESC)` | collecte et regroupement récents |
 | `articles (event_id)` | articles d'un événement |
-| `articles USING hnsw (embedding vector_cosine_ops)` | recherche du plus proche voisin au regroupement |
 | `events (day, score DESC)` | édition du jour |
 | `events USING gin (search)` | recherche par mot-clé |
 | `event_themes (theme_id)`, `event_zones (zone_id)` | filtres |
+
+Le regroupement compare un article aux centroïdes des événements du même jour, soit quelques centaines de vecteurs au plus. Un parcours exact suffit : un index approximatif (HNSW) n'apporterait rien à cette échelle.
 
 ## Données de référence
 
