@@ -1,0 +1,38 @@
+{
+  "name": "sourcee",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Les faits du jour, chacun avec ses sources.",
+  "author": "Théo Celebi",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "db:up": "docker compose up -d --wait db",
+    "db:generate": "npm run generate -w @sourcee/db",
+    "db:migrate": "npm run migrate -w @sourcee/db",
+    "db:seed": "npm run seed -w @sourcee/db",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "vitest run",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.5",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.0"
+  }
+}
