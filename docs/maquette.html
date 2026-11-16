@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sourcé — maquette</title>
+<meta name="description" content="Maquette interactive de l'édition du jour de Sourcé : événements recoupés, résumés sourcés.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+<style>
+:root {
+  --paper: #f6f1e7; --raised: #fbf8f1; --sunk: #ede6d7;
+  --ink: #1d1b16; --ink-2: #4b463d; --ink-3: #6f695d;
+  --rule: #d8cfbd; --rule-strong: #1d1b16;
+  --accent: #a3201b;
+  --ok: #2d6a43; --ok-bg: #e2eddf;
+  --warn: #8a5300; --warn-bg: #f7e9c8;
+  --info: #24527f; --info-bg: #e1eaf3;
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14130f; --raised: #1c1a15; --sunk: #0f0e0b;
+    --ink: #eee7d8; --ink-2: #c4bba9; --ink-3: #9a9282;
+    --rule: #34302a; --rule-strong: #eee7d8;
+    --accent: #e26a5f;
+    --ok: #86c79b; --ok-bg: #18271d;
+    --warn: #e8b55a; --warn-bg: #2d2413;
+    --info: #8db7e2; --info-bg: #16222f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14130f; --raised: #1c1a15; --sunk: #0f0e0b;
+  --ink: #eee7d8; --ink-2: #c4bba9; --ink-3: #9a9282;
+  --rule: #34302a; --rule-strong: #eee7d8;
+  --accent: #e26a5f;
+  --ok: #86c79b; --ok-bg: #18271d;
+  --warn: #e8b55a; --warn-bg: #2d2413;
+  --info: #8db7e2; --info-bg: #16222f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--sans); }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 720px) { .wrap { padding: 0 32px; } }
+
+.mock-banner { background: var(--ink); color: var(--paper); font-size: 12.5px; text-align: center; padding: 7px 16px; }
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 14px; }
+.edition-no { font: 600 11.5px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.tools { display: flex; gap: 8px; margin-left: auto; }
+.toolbtn { display: inline-flex; align-items: center; gap: 7px; font: 500 13px/1 var(--sans); color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.toolbtn:hover { border-color: var(--ink-3); }
+.toolbtn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.toolbtn svg { width: 15px; height: 15px; flex: none; }
+@media (max-width: 420px) { .edition-no { display: none; } }
+
+.masthead { text-align: center; padding-top: 14px; }
+.brand { font: 700 clamp(52px, 12vw, 100px)/.95 var(--serif); letter-spacing: -.03em; margin: 0; font-variation-settings: "opsz" 72; }
+.brand .e { color: var(--accent); }
+.tagline { font: italic 400 clamp(16px, 2.4vw, 19px)/1.4 var(--serif); color: var(--ink-2); margin: 10px 0 0; }
+.dateline { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin-top: 20px; padding: 8px 0; border-top: 3px double var(--rule-strong); border-bottom: 1px solid var(--rule-strong); font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.dateline > :first-child { text-align: left; font-weight: 600; color: var(--ink); }
+.dateline > :last-child { text-align: right; }
+@media (max-width: 719px) {
+  .dateline { grid-template-columns: 1fr; gap: 2px; text-align: center; }
+  .dateline > :first-child, .dateline > :last-child { text-align: center; }
+}
+
+.filters { display: grid; gap: 12px; padding: 20px 0 18px; border-bottom: 1px solid var(--rule); }
+.frow { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 12px; }
+.flabel { font: 600 11.5px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.chip { font: 500 13.5px/1 var(--sans); color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 8px 12px; cursor: pointer; white-space: nowrap; }
+.chip:hover { border-color: var(--ink-3); }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+input[type="date"] { font: 500 13px/1 var(--sans); color: var(--ink); background: var(--raised); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 10px; }
+.period-fields { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.period-fields[hidden] { display: none; }
+.search { display: flex; gap: 8px; align-items: center; }
+.search input { flex: 1 1 auto; min-width: 0; max-width: 420px; font: 400 15px/1.2 var(--sans); color: var(--ink); background: var(--raised); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
+.search input::placeholder { color: var(--ink-3); }
+.linkbtn { background: none; border: 0; padding: 6px 4px; font: 500 13px/1 var(--sans); color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@media (max-width: 719px) {
+  .frow { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px; }
+  .chips::-webkit-scrollbar { display: none; }
+}
+
+.timeline { padding: 16px 0 6px; border-bottom: 1px solid var(--rule); }
+.tl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; }
+.tl-head h2 { font: 600 11.5px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+.tl-legend { display: flex; gap: 14px; margin: 0; font-size: 12.5px; color: var(--ink-2); }
+.dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; border: 1.5px solid var(--ink); }
+.dot-ok { background: var(--ink); }
+.dot-single { border-style: dashed; }
+.tl-track { position: relative; margin-top: 14px; height: 70px; }
+.tl-axis { position: absolute; left: 0; right: 0; height: 1px; background: var(--rule-strong); }
+.tl-tick { position: absolute; width: 1px; height: 7px; background: var(--rule-strong); }
+.tl-label { position: absolute; font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; transform: translateX(-50%); }
+.tl-label.start { transform: none; }
+.tl-label.end { transform: translateX(-100%); }
+.tl-marker { position: absolute; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; display: grid; place-items: center; font: 600 11px/1 var(--sans); text-decoration: none; color: var(--paper); background: var(--ink); border: 1.5px solid var(--ink); }
+.tl-marker.single { color: var(--ink); background: var(--paper); border-style: dashed; }
+.tl-marker::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: var(--stem); background: var(--ink-3); }
+.tl-marker:hover, .tl-marker:focus-visible { background: var(--accent); border-color: var(--accent); border-style: solid; color: var(--paper); }
+.tip { display: none; position: absolute; bottom: calc(100% + 8px); width: max-content; max-width: 240px; padding: 8px 10px; border-radius: 6px; background: var(--ink); color: var(--paper); font: 400 12.5px/1.35 var(--sans); text-align: left; z-index: 5; pointer-events: none; }
+.tip b { display: block; font-weight: 600; margin-bottom: 2px; }
+.tip.c { left: 50%; transform: translateX(-50%); }
+.tip.l { left: -4px; }
+.tip.r { right: -4px; }
+.tl-marker:hover .tip, .tl-marker:focus-visible .tip { display: block; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 48px; padding-bottom: 48px; }
+@media (max-width: 959px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+.results { font-size: 13.5px; color: var(--ink-2); margin: 18px 0 0; }
+
+.event { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 0 16px; padding: 28px 0; border-bottom: 1px solid var(--rule); scroll-margin-top: 16px; }
+.event:target { animation: flash 2.2s ease-out; }
+@keyframes flash { from { background: var(--warn-bg); } to { background: transparent; } }
+.rank { font: italic 500 34px/1 var(--serif); color: var(--ink-3); padding-top: 2px; }
+.kicker { font: 600 11.5px/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+.kicker .une { color: var(--ink); margin-right: 8px; padding-right: 8px; border-right: 1px solid var(--rule); }
+.ev-title { font: 600 25px/1.18 var(--serif); letter-spacing: -.01em; margin: 0 0 12px; text-wrap: balance; font-variation-settings: "opsz" 36; }
+.event.lead .ev-title { font-size: clamp(28px, 4vw, 40px); font-variation-settings: "opsz" 60; }
+.ev-title.quoted { font-style: italic; font-weight: 500; margin-bottom: 4px; }
+.title-attr { margin: 0 0 12px; font-size: 13px; color: var(--ink-3); }
+.status-row { margin: 0 0 14px; }
+.status { display: inline-flex; align-items: center; gap: 6px; font: 500 12.5px/1 var(--sans); padding: 6px 10px 6px 8px; border-radius: 999px; }
+.status.ok { color: var(--ok); background: var(--ok-bg); }
+.status.single { color: var(--warn); background: var(--warn-bg); }
+.status svg { width: 14px; height: 14px; flex: none; }
+.summary { font: 400 18px/1.62 var(--serif); margin: 0; max-width: 66ch; text-wrap: pretty; }
+.event.lead .summary { font-size: 19px; }
+.summary sup { font: 600 11px/0 var(--sans); margin-left: 1px; }
+.summary sup a { color: var(--accent); text-decoration: none; padding: 0 1px; }
+.insufficient { font: italic 400 17px/1.55 var(--serif); color: var(--ink-2); border-left: 3px solid var(--warn); padding: 2px 0 2px 12px; margin: 0; max-width: 62ch; }
+
+.src-block { margin-top: 18px; }
+.src-h { font: 600 11px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 8px; }
+.src-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.src-list li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; padding: 6px 8px; margin: 0 -8px; border-radius: 6px; font-size: 14px; line-height: 1.45; }
+.src-list.plain li { grid-template-columns: minmax(0, 1fr); }
+.src-list li:target { background: var(--warn-bg); }
+.ref { font: 600 12px/20px var(--sans); color: var(--accent); text-align: right; }
+.src-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.src-name { font-weight: 600; }
+.src-meta { color: var(--ink-3); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.src-title { display: block; color: var(--ink-2); text-decoration: none; }
+.src-title:hover { color: var(--accent); text-decoration: underline; }
+.tag { display: inline-block; font: 500 11px/1 var(--sans); padding: 3px 6px; border-radius: 4px; white-space: nowrap; }
+.tag.off { color: var(--info); background: var(--info-bg); }
+.tag.note { color: var(--ink-2); background: var(--sunk); border: 1px solid var(--rule); margin-top: 4px; }
+details.also { margin-top: 12px; font-size: 14px; }
+details.also > summary { cursor: pointer; color: var(--ink-2); list-style: none; padding: 4px 0; }
+details.also > summary::-webkit-details-marker { display: none; }
+details.also > summary::before { content: "+"; display: inline-block; width: 16px; font-weight: 600; color: var(--accent); }
+details.also[open] > summary::before { content: "–"; }
+.also-names { color: var(--ink-3); }
+details.also .src-list { margin-top: 6px; }
+.ev-meta { margin: 16px 0 0; font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+.event.minute { padding: 22px 0; }
+.event.minute .ev-title { font-size: 22px; margin-bottom: 10px; }
+.minute-line { font: 400 17.5px/1.55 var(--serif); margin: 0; max-width: 66ch; }
+.minute-src { margin: 10px 0 0; font-size: 13px; color: var(--ink-3); }
+.minute-src a { color: var(--ink-2); }
+.is-minute .timeline, .is-minute aside { display: none; }
+.is-minute .layout { grid-template-columns: minmax(0, 760px); justify-content: center; }
+
+@media (max-width: 719px) {
+  .event { grid-template-columns: minmax(0, 1fr); padding: 24px 0; }
+  .rank { font-size: 22px; padding: 0; margin-bottom: 8px; }
+  .ev-title { font-size: 22px; }
+  .event.lead .ev-title { font-size: 27px; }
+  .summary, .event.lead .summary { font-size: 17px; }
+}
+
+.empty { padding: 48px 0; text-align: center; color: var(--ink-2); }
+.empty p { font: italic 400 18px/1.5 var(--serif); margin: 0 0 14px; }
+
+aside { position: sticky; top: 16px; align-self: start; padding-top: 18px; }
+@media (max-width: 959px) { aside { position: static; } }
+.aside-box { border-top: 3px double var(--rule-strong); padding: 14px 0 22px; }
+.aside-box h2 { font: 600 19px/1.25 var(--serif); margin: 0 0 12px; }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.legend p { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.legend .refdemo { font: 600 14px/1 var(--sans); color: var(--accent); }
+.stats { display: grid; grid-template-columns: minmax(0, 1fr) auto; margin: 0; }
+.stats dt, .stats dd { margin: 0; padding: 7px 0; border-bottom: 1px dotted var(--rule); font-size: 14px; }
+.stats dt { color: var(--ink-2); }
+.stats dd { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; padding-left: 12px; }
+.links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+
+.site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px; padding-top: 18px; padding-bottom: 40px; border-top: 3px double var(--rule-strong); font-size: 13px; color: var(--ink-3); }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 16px); max-width: calc(100% - 32px); background: var(--ink); color: var(--paper); font: 500 13.5px/1.35 var(--sans); padding: 10px 14px; border-radius: 8px; text-align: center; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 20; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div class="mock-banner">Maquette : médias, institutions et événements fictifs. Les liens ne mènent nulle part.</div>
+
+<div class="wrap">
+  <div class="topbar">
+    <span class="edition-no">Édition quotidienne</span>
+    <div class="tools">
+      <button type="button" class="toolbtn" id="minute-btn" aria-pressed="false">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="9" r="5.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 9V6.3M6.3 1.8h3.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span>Mode 1 minute</span>
+      </button>
+      <button type="button" class="toolbtn" id="theme-btn">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg>
+        <span id="theme-label">Thème : auto</span>
+      </button>
+    </div>
+  </div>
+
+  <header class="masthead">
+    <h1 class="brand">Sourc<span class="e">é</span></h1>
+    <p class="tagline">Les faits du jour, chacun avec ses sources.</p>
+    <div class="dateline">
+      <span id="date-label">Mardi 17 novembre 2026</span>
+      <span>Édition de 18 h · mise à jour toutes les heures</span>
+      <span id="count-label"></span>
+    </div>
+  </header>
+
+  <section class="filters" aria-label="Filtres">
+    <div class="frow">
+      <span class="flabel" id="lbl-date">Date</span>
+      <div class="chips" role="group" aria-labelledby="lbl-date">
+        <button type="button" class="chip" data-date="today" aria-pressed="true">Aujourd'hui</button>
+        <button type="button" class="chip" data-date="yesterday" aria-pressed="false">Hier</button>
+        <label><span class="sr-only">Choisir une date</span><input type="date" id="date-input" value="2026-11-17" max="2026-11-17"></label>
+        <button type="button" class="chip" data-date="period" aria-pressed="false">Période</button>
+        <span class="period-fields" id="period-fields" hidden>
+          <label>du <input type="date" id="from-input" value="2026-11-10" max="2026-11-17"></label>
+          <label>au <input type="date" id="to-input" value="2026-11-17" max="2026-11-17"></label>
+        </span>
+      </div>
+    </div>
+    <div class="frow">
+      <span class="flabel" id="lbl-themes">Thèmes</span>
+      <div class="chips" role="group" aria-labelledby="lbl-themes" id="theme-chips"></div>
+    </div>
+    <div class="frow">
+      <span class="flabel" id="lbl-zones">Zones</span>
+      <div class="chips" role="group" aria-labelledby="lbl-zones" id="zone-chips"></div>
+    </div>
+    <div class="frow">
+      <label class="flabel" for="q">Mot-clé</label>
+      <div class="search">
+        <input type="search" id="q" placeholder="COP, IA, élections…" autocomplete="off">
+        <button type="button" class="linkbtn" data-reset>Réinitialiser</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="timeline" aria-labelledby="tl-title">
+    <div class="tl-head">
+      <h2 id="tl-title">La journée heure par heure</h2>
+      <p class="tl-legend"><span><i class="dot dot-ok"></i>Confirmé</span><span><i class="dot dot-single"></i>Source unique</span></p>
+    </div>
+    <div class="tl-track" id="tl"></div>
+  </section>
+
+  <div class="layout">
+    <main>
+      <h2 class="sr-only">Les événements du jour</h2>
+      <p class="results" id="results" aria-live="polite"></p>
+      <div id="events"></div>
+    </main>
+    <aside>
+      <section class="aside-box">
+        <h2>Comment lire cette édition</h2>
+        <ul class="legend">
+          <li><span class="status ok" data-icon="ok">Confirmé</span><p>Au moins deux origines indépendantes. Deux médias d'un même groupe, ou qui reprennent la même dépêche d'agence, comptent pour une seule.</p></li>
+          <li><span class="status single" data-icon="single">Source unique</span><p>Une seule origine pour l'instant : l'information reste à confirmer.</p></li>
+          <li><span class="refdemo">¹ ²</span><p>Chaque phrase du résumé renvoie aux articles qui l'appuient.</p></li>
+          <li><p>Les résumés sont reformulés automatiquement, uniquement à partir des sources ouvertes à l'analyse : institutions et médias qui n'excluent pas l'IA. Les autres médias apparaissent par leur titre et un lien.</p></li>
+          <li><p>Tribunes, éditoriaux et contenus sponsorisés sont écartés.</p></li>
+        </ul>
+      </section>
+      <section class="aside-box">
+        <h2>Coulisses de l'édition</h2>
+        <dl class="stats" id="stats"></dl>
+      </section>
+      <section class="aside-box">
+        <h2>En savoir plus</h2>
+        <ul class="links">
+          <li><a href="#" data-fake>Méthodologie</a></li>
+          <li><a href="#" data-fake>Sources et conformité</a></li>
+          <li><a href="#" data-fake>Code source</a></li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<footer class="wrap site-footer">
+  <span>Sourcé — les faits du jour, chacun avec ses sources.</span>
+  <span>Maquette · données fictives</span>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p class="wrap">Cette maquette a besoin de JavaScript pour afficher les données d'exemple.</p></noscript>
+
+<script>
+(() => {
+  "use strict";
+
+  const THEMES = { international: "International", politique: "Politique", economie: "Économie", science: "Science", tech: "Tech", sport: "Sport", environnement: "Environnement", sante: "Santé" };
+  const ZONES = { monde: "Monde", europe: "Europe", france: "France", afrique: "Afrique", ameriques: "Amériques", "asie-pacifique": "Asie-Pacifique", "moyen-orient": "Moyen-Orient" };
+  const ZONE_PARENT = { france: "europe" };
+
+  // Sources fictives. policy « open » : analysable (résumé) ; « links » : titre et lien seulement.
+  const SOURCES = {
+    oceans:   { name: "Secrétariat de la conférence des océans", kind: "official", policy: "open", group: "oceans" },
+    energie:  { name: "Commission de l'énergie de l'Union", kind: "official", policy: "open", group: "energie" },
+    espace:   { name: "Agence spatiale internationale", kind: "official", policy: "open", group: "espace" },
+    sismo:    { name: "Observatoire sismologique du Pacifique", kind: "official", policy: "open", group: "sismo" },
+    sante:    { name: "Organisation régionale de santé", kind: "official", policy: "open", group: "sante" },
+    wire:     { name: "Global Wire", kind: "media", policy: "open", group: "Global Wire" },
+    rli:      { name: "Radio Libre Internationale", kind: "media", policy: "open", group: "RLI" },
+    hermes:   { name: "Agence Hermès", kind: "media", policy: "links", group: "Agence Hermès" },
+    matin:    { name: "Le Matin Libre", kind: "media", policy: "links", group: "Groupe Horizon" },
+    courrier: { name: "Courrier des Régions", kind: "media", policy: "links", group: "Groupe Horizon" },
+    meridien: { name: "Radio Méridien", kind: "media", policy: "links", group: "Radio Méridien" },
+    ledger:   { name: "The Northern Ledger", kind: "media", policy: "links", group: "Ledger Media" },
+    atlas:    { name: "Atlas Daily", kind: "media", policy: "links", group: "Atlas" },
+    continu:  { name: "Info Continu", kind: "media", policy: "links", group: "Info Continu" },
+    hebdo:    { name: "Euro Hebdo", kind: "media", policy: "links", group: "Euro Hebdo" },
+  };
+
+  // Même forme que la future réponse de l'API (simplifiée).
+  const EVENTS = [
+    { id: "e1", themes: ["environnement"], zones: ["monde"], updated: "16:10",
+      title: "Conférence sur les océans : 52 États adoptent un accord sur la pêche en haute mer",
+      summary: { status: "ok", sentences: [
+        { text: "Selon le secrétariat de la conférence, 52 États ont adopté mardi un accord encadrant la pêche dans les eaux internationales.", refs: ["a1"] },
+        { text: "Le texte entrera en vigueur après sa ratification par au moins 30 pays.", refs: ["a1"] },
+        { text: "D'après Global Wire, trois délégations ont voté contre.", refs: ["a2"] },
+      ] },
+      articles: [
+        { id: "a1", src: "oceans", lang: "FR", time: "07:42", title: "Adoption par 52 États de l'accord sur la pêche en haute mer ; entrée en vigueur après 30 ratifications" },
+        { id: "a2", src: "wire", lang: "EN", time: "09:15", title: "52 nations back high-seas fishing pact, three vote against" },
+        { id: "a3", src: "hermes", lang: "FR", time: "07:58", title: "Pêche en haute mer : 52 pays adoptent un accord" },
+        { id: "a4", src: "matin", lang: "FR", time: "08:05", title: "Haute mer : un accord trouvé sur la pêche", agency: "Agence Hermès" },
+        { id: "a5", src: "ledger", lang: "EN", time: "10:20", title: "High-seas fishing deal clears final vote" },
+        { id: "a6", src: "meridien", lang: "FR", time: "12:40", title: "Pêche en haute mer : ce que prévoit l'accord" },
+      ] },
+    { id: "e2", themes: ["economie"], zones: ["europe"], updated: "15:30",
+      title: "Énergie : douze pays européens s'accordent sur des achats groupés de gaz",
+      summary: { status: "ok", sentences: [
+        { text: "Selon la Commission de l'énergie de l'Union, les ministres de douze pays européens ont approuvé un mécanisme d'achats groupés de gaz.", refs: ["b1"] },
+        { text: "Il porte sur 18 milliards de mètres cubes d'ici mars.", refs: ["b1"] },
+        { text: "Selon Radio Libre Internationale, deux pays demandent un réexamen du mécanisme au printemps.", refs: ["b2"] },
+      ] },
+      articles: [
+        { id: "b1", src: "energie", lang: "FR", time: "09:10", title: "Douze pays approuvent les achats groupés de gaz : 18 milliards de m³ d'ici mars" },
+        { id: "b2", src: "rli", lang: "FR", time: "11:45", title: "Achats groupés de gaz : deux pays demandent un réexamen au printemps" },
+        { id: "b3", src: "hebdo", lang: "FR", time: "09:40", title: "Gaz : douze pays s'unissent pour acheter ensemble" },
+        { id: "b4", src: "matin", lang: "FR", time: "10:05", title: "Achats groupés de gaz : l'accord en cinq points" },
+        { id: "b5", src: "courrier", lang: "FR", time: "10:30", title: "Gaz : ce que l'accord change pour l'hiver" },
+      ] },
+    { id: "e3", themes: ["science"], zones: ["monde"], updated: "14:20",
+      title: "De la vapeur d'eau détectée dans l'atmosphère d'une exoplanète",
+      summary: { status: "ok", sentences: [
+        { text: "L'Agence spatiale internationale indique avoir détecté de la vapeur d'eau dans l'atmosphère d'une planète située à 120 années-lumière.", refs: ["c1"] },
+        { text: "Selon Global Wire, ces résultats doivent encore être confirmés par d'autres observations.", refs: ["c2"] },
+      ] },
+      articles: [
+        { id: "c1", src: "espace", lang: "FR", time: "06:05", title: "Vapeur d'eau détectée dans l'atmosphère d'une exoplanète à 120 années-lumière" },
+        { id: "c2", src: "wire", lang: "EN", time: "07:30", title: "Water vapour spotted on distant planet, pending confirmation" },
+        { id: "c3", src: "ledger", lang: "EN", time: "08:10", title: "Space telescope finds water vapour on distant world" },
+        { id: "c4", src: "continu", lang: "FR", time: "09:00", title: "De la vapeur d'eau découverte sur une exoplanète" },
+      ] },
+    { id: "e4", themes: ["international"], zones: ["asie-pacifique"], updated: "09:50",
+      title: "Séisme de magnitude 6,1 au large d'un archipel du Pacifique",
+      summary: { status: "ok", sentences: [
+        { text: "Un séisme de magnitude 6,1 s'est produit au large d'un archipel du Pacifique, selon l'Observatoire sismologique du Pacifique.", refs: ["d1"] },
+        { text: "L'observatoire a ensuite levé l'alerte au tsunami.", refs: ["d1"] },
+        { text: "Les autorités locales n'ont signalé aucune victime, d'après Global Wire.", refs: ["d2"] },
+      ] },
+      articles: [
+        { id: "d1", src: "sismo", lang: "EN", time: "03:15", title: "M6.1 earthquake off Pacific archipelago; tsunami alert lifted" },
+        { id: "d2", src: "wire", lang: "EN", time: "04:40", title: "No casualties reported after 6.1 quake, local officials say" },
+        { id: "d3", src: "atlas", lang: "EN", time: "05:10", title: "Strong quake shakes Pacific archipelago" },
+        { id: "d4", src: "hermes", lang: "FR", time: "05:30", title: "Séisme de magnitude 6,1 dans le Pacifique, pas de victime signalée" },
+        { id: "d5", src: "meridien", lang: "FR", time: "07:00", title: "Séisme dans le Pacifique : l'alerte au tsunami levée" },
+      ] },
+    { id: "e5", themes: ["tech"], zones: ["monde"], updated: "17:20",
+      title: "Un service de messagerie inaccessible pendant environ trois heures",
+      summary: { status: "ok", sentences: [
+        { text: "Un service de messagerie a été inaccessible pendant environ trois heures mardi, selon Global Wire.", refs: ["f1"] },
+        { text: "L'entreprise attribue l'incident à une mise à jour de configuration, d'après la même source.", refs: ["f1"] },
+      ] },
+      articles: [
+        { id: "f1", src: "wire", lang: "EN", time: "13:05", title: "Messaging service down for about three hours; company blames configuration update" },
+        { id: "f2", src: "continu", lang: "FR", time: "13:40", title: "Panne d'une messagerie : le service progressivement rétabli" },
+      ] },
+    { id: "e6", themes: ["sante"], zones: ["afrique"], updated: "12:00",
+      title: "Rougeole : une campagne de vaccination vise 4 millions d'enfants dans trois pays",
+      summary: { status: "ok", sentences: [
+        { text: "Une campagne de vaccination contre la rougeole visant 4 millions d'enfants a débuté dans trois pays, selon l'Organisation régionale de santé.", refs: ["g1"] },
+        { text: "Elle doit durer dix jours.", refs: ["g1"] },
+      ] },
+      articles: [
+        { id: "g1", src: "sante", lang: "FR", time: "08:30", title: "Rougeole : campagne de vaccination de dix jours pour 4 millions d'enfants dans trois pays" },
+        { id: "g2", src: "meridien", lang: "FR", time: "10:15", title: "Rougeole : une vaste campagne de vaccination débute" },
+        { id: "g3", src: "atlas", lang: "EN", time: "11:30", title: "Measles vaccination drive targets 4 million children" },
+      ] },
+    { id: "e7", themes: ["sport"], zones: ["europe"], updated: "10:40",
+      title: "Ski alpin : une épreuve de Coupe du monde reportée faute de neige",
+      summary: { status: "ok", sentences: [
+        { text: "Selon Radio Libre Internationale, les organisateurs ont reporté l'épreuve de Coupe du monde de ski alpin prévue ce week-end, faute de neige.", refs: ["h1"] },
+        { text: "Aucune nouvelle date n'a été annoncée.", refs: ["h1"] },
+      ] },
+      articles: [
+        { id: "h1", src: "rli", lang: "FR", time: "10:40", title: "Ski alpin : l'épreuve de Coupe du monde prévue ce week-end reportée faute de neige, pas de nouvelle date" },
+      ] },
+    { id: "e8", themes: ["politique"], zones: ["france"], updated: "12:30", titleFrom: "i1",
+      summary: { status: "unavailable" },
+      articles: [
+        { id: "i1", src: "matin", lang: "FR", time: "11:20", title: "Valbourg : le conseil municipal adopte le budget 2027 après six heures de débat" },
+        { id: "i2", src: "continu", lang: "FR", time: "12:30", title: "Valbourg : le budget municipal voté" },
+      ] },
+    { id: "e9", themes: ["tech"], zones: ["europe"], updated: "15:50", titleFrom: "j1",
+      summary: { status: "insufficient" },
+      articles: [
+        { id: "j1", src: "rli", lang: "FR", time: "15:50", title: "Assistants vocaux : bientôt un encadrement ?" },
+      ] },
+    { id: "e10", themes: ["economie"], zones: ["france"], updated: "13:00",
+      title: "Un équipementier automobile annonce la fermeture d'une usine du Nord d'ici 2028",
+      summary: { status: "ok", sentences: [
+        { text: "Selon Radio Libre Internationale, un équipementier automobile a annoncé la fermeture d'ici 2028 d'une usine du Nord qui emploie 340 personnes.", refs: ["k1"] },
+        { text: "Les syndicats appellent à un rassemblement jeudi, d'après la même source.", refs: ["k1"] },
+      ] },
+      articles: [
+        { id: "k1", src: "rli", lang: "FR", time: "12:15", title: "Un équipementier automobile fermera son usine du Nord d'ici 2028 : 340 emplois concernés, rassemblement syndical jeudi" },
+        { id: "k2", src: "courrier", lang: "FR", time: "13:00", title: "Fermeture d'usine dans le Nord : 340 salariés concernés" },
+      ] },
+  ];
+
+  const $ = (sel) => document.querySelector(sel);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const norm = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+  const hhmm = (t) => t.replace(":", " h ");
+  const plural = (n, word) => `${n} ${word}${n > 1 ? "s" : ""}`;
+  const ICON = {
+    ok: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 8.2l2 2 4-4.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    single: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.6v4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.3" r=".95" fill="currentColor"/></svg>',
+  };
+
+  // Applique les règles du back-end : origines indépendantes, statut, classement.
+  function enrich(raw) {
+    const arts = raw.articles.map((a) => ({ ...a, source: SOURCES[a.src] })).sort((a, b) => toMin(a.time) - toMin(b.time));
+    const byId = Object.fromEntries(arts.map((a) => [a.id, a]));
+    const ok = raw.summary.status === "ok";
+    const basisIds = [];
+    if (ok) raw.summary.sentences.forEach((s) => s.refs.forEach((r) => { if (!basisIds.includes(r)) basisIds.push(r); }));
+    basisIds.forEach((id, i) => { byId[id].n = i + 1; });
+
+    const firstOfGroup = new Map();
+    for (const a of arts) {
+      if (a.source.kind !== "media") continue;
+      if (a.agency) { a.note = `reprend une dépêche ${a.agency}`; continue; }
+      const first = firstOfGroup.get(a.source.group);
+      if (!first) firstOfGroup.set(a.source.group, a.source.name);
+      else if (first !== a.source.name) a.note = `même groupe que ${first} : compté une fois`;
+    }
+    const origins = new Set(arts.filter((a) => a.source.kind === "media").map((a) => a.agency || a.source.group)).size;
+    const titleSrc = ok ? null : byId[raw.titleFrom];
+    const title = ok ? raw.title : `« ${titleSrc.title} »`;
+    const text = [title, ...(ok ? raw.summary.sentences.map((s) => s.text) : []), ...arts.map((a) => `${a.title} ${a.source.name}`), ...raw.themes.map((t) => THEMES[t]), ...raw.zones.map((z) => ZONES[z])].join(" ");
+    return {
+      ...raw, ok, arts, byId, titleSrc, title,
+      basis: basisIds.map((id) => byId[id]),
+      others: arts.filter((a) => !basisIds.includes(a.id)),
+      first: arts[0].time,
+      origins, confirmed: origins >= 2,
+      score: origins * 10 + arts.length,
+      haystack: norm(text),
+    };
+  }
+
+  const edition = EVENTS.map(enrich).sort((a, b) => b.score - a.score || toMin(a.first) - toMin(b.first));
+  edition.forEach((ev, i) => { ev.rank = i + 1; });
+
+  const state = { themes: new Set(), zones: new Set(), q: "", minute: false, sampleNote: false };
+
+  const kicker = (ev) => [...ev.themes.map((t) => THEMES[t]), ...ev.zones.map((z) => ZONES[z])].join(" · ");
+  const pill = (ev) => ev.confirmed
+    ? `<span class="status ok">${ICON.ok}Confirmé · ${ev.origins} origines indépendantes</span>`
+    : `<span class="status single">${ICON.single}Source unique · à confirmer</span>`;
+  const uniqueNames = (list) => [...new Set(list.map((a) => a.source.name))];
+
+  function sentenceHTML(ev, s) {
+    const links = s.refs.map((id) => { const a = ev.byId[id]; return `<a href="#${ev.id}-${id}" aria-label="Source ${a.n} : ${esc(a.source.name)}">${a.n}</a>`; }).join(",");
+    const t = esc(s.text);
+    const sup = `<sup>${links}</sup>`;
+    return /[.!?…]$/.test(t) ? t.slice(0, -1) + sup + t.slice(-1) : t + sup;
+  }
+
+  function articleLI(ev, a, numbered) {
+    const tag = a.source.kind === "official" ? '<span class="tag off">Officiel</span>' : "";
+    const note = a.note ? `<span class="tag note">${esc(a.note)}</span>` : "";
+    return `<li id="${ev.id}-${a.id}">${numbered ? `<span class="ref">${a.n}</span>` : ""}<div><span class="src-head"><span class="src-name">${esc(a.source.name)}</span>${tag}<span class="src-meta">${a.lang} · ${hhmm(a.time)}</span></span><a class="src-title" href="#" data-fake>« ${esc(a.title)} »<span aria-hidden="true">&nbsp;↗</span></a>${note}</div></li>`;
+  }
+
+  function cardHTML(ev, lead) {
+    const une = lead ? '<span class="une">À la une</span>' : "";
+    let head, body;
+    if (ev.ok) {
+      head = `<h3 class="ev-title">${esc(ev.title)}</h3>`;
+      const summary = `<p class="summary">${ev.summary.sentences.map((s) => sentenceHTML(ev, s)).join(" ")}</p>`;
+      const basis = `<div class="src-block"><h4 class="src-h">Résumé fondé sur</h4><ol class="src-list">${ev.basis.map((a) => articleLI(ev, a, true)).join("")}</ol></div>`;
+      const names = uniqueNames(ev.others);
+      const others = ev.others.length
+        ? `<details class="also"><summary>Également rapporté par ${plural(names.length, "média")} <span class="also-names">— ${esc(names.join(", "))}</span></summary><ul class="src-list plain">${ev.others.map((a) => articleLI(ev, a, false)).join("")}</ul></details>`
+        : "";
+      body = summary + basis + others;
+    } else {
+      head = `<h3 class="ev-title quoted">${esc(ev.title)}</h3><p class="title-attr">Titre d'origine · ${esc(ev.titleSrc.source.name)}</p>`;
+      const msg = ev.summary.status === "unavailable"
+        ? "Informations insuffisantes pour un résumé : aucune source ouverte à l'analyse ne couvre encore cet événement. Seuls les titres et les liens des médias sont affichés."
+        : "Informations insuffisantes : la seule source disponible ne donne pas assez d'éléments vérifiables pour un résumé.";
+      body = `<p class="insufficient">${msg}</p><div class="src-block"><h4 class="src-h">Sources (${ev.arts.length})</h4><ul class="src-list plain">${ev.arts.map((a) => articleLI(ev, a, false)).join("")}</ul></div>`;
+    }
+    const updated = ev.updated !== ev.first ? ` · mise à jour ${hhmm(ev.updated)}` : "";
+    const meta = `Première publication ${hhmm(ev.first)}${updated} · ${plural(ev.arts.length, "article")}`;
+    return `<article class="event${lead ? " lead" : ""}" id="${ev.id}"><div class="rank" aria-hidden="true">${String(ev.rank).padStart(2, "0")}</div><div class="ev-body"><p class="kicker">${une}${esc(kicker(ev))}</p>${head}<p class="status-row">${pill(ev)}</p>${body}<p class="ev-meta">${meta}</p></div></article>`;
+  }
+
+  function minuteHTML(ev) {
+    const line = ev.ok ? esc(ev.summary.sentences[0].text) : "Informations insuffisantes pour un résumé.";
+    const shown = ev.ok ? ev.basis : ev.arts;
+    const rest = uniqueNames(ev.arts).length - uniqueNames(shown).length;
+    const links = uniqueNames(shown).map((n) => `<a href="#" data-fake>${esc(n)}</a>`).join(", ");
+    return `<article class="event minute" id="${ev.id}"><div class="rank" aria-hidden="true">${String(ev.rank).padStart(2, "0")}</div><div class="ev-body"><p class="kicker">${esc(kicker(ev))}</p><h3 class="ev-title">${esc(ev.title)}</h3><p class="status-row">${pill(ev)}</p><p class="minute-line">${line}</p><p class="minute-src">Sources : ${links}${rest > 0 ? ` · et ${rest} ${rest > 1 ? "autres médias" : "autre média"}` : ""}</p></div></article>`;
+  }
+
+  function matches(ev) {
+    if (state.themes.size && !ev.themes.some((t) => state.themes.has(t))) return false;
+    if (state.zones.size && !ev.zones.some((z) => state.zones.has(z) || state.zones.has(ZONE_PARENT[z]))) return false;
+    const terms = norm(state.q).split(/\s+/).filter(Boolean);
+    return terms.every((t) => ev.haystack.includes(t));
+  }
+
+  function renderTimeline(list) {
+    const track = $("#tl");
+    const w = track.clientWidth;
+    if (!w) return;
+    const R = 12, GAP = 28, ROW = 30;
+    const lastX = [];
+    const placed = [...list].sort((a, b) => toMin(a.first) - toMin(b.first)).map((ev) => {
+      const x = Math.min(w - R, Math.max(R, (toMin(ev.first) / 1440) * w));
+      let row = lastX.findIndex((lx) => x - lx >= GAP);
+      if (row === -1) { row = lastX.length; lastX.push(x); } else { lastX[row] = x; }
+      return { ev, x, row };
+    });
+    const axisY = Math.max(1, lastX.length) * ROW + 8;
+    track.style.height = `${axisY + 28}px`;
+    let html = `<div class="tl-axis" style="top:${axisY}px"></div>`;
+    const step = w < 520 ? 6 : 3;
+    // Positions en pourcentage : rien ne déborde, même avant le prochain redessin.
+    for (let h = 0; h <= 24; h += step) {
+      const pct = (h / 24) * 100;
+      const pos = h === 0 ? "start" : h === 24 ? "end" : "";
+      html += `<span class="tl-tick" style="left:calc(${pct}% - ${h === 24 ? 1 : 0}px);top:${axisY - 3}px"></span><span class="tl-label ${pos}" style="left:${pct}%;top:${axisY + 9}px">${String(h).padStart(2, "0")} h</span>`;
+    }
+    for (const p of placed) {
+      const top = p.row * ROW;
+      const align = p.x < 130 ? "l" : p.x > w - 130 ? "r" : "c";
+      const label = `${hhmm(p.ev.first)} — ${p.ev.title}`;
+      html += `<a class="tl-marker${p.ev.confirmed ? "" : " single"}" href="#${p.ev.id}" style="left:${(p.x / w) * 100}%;top:${top}px;--stem:${axisY - top - 24}px" aria-label="${esc(label)}"><span aria-hidden="true">${p.ev.rank}</span><span class="tip ${align}" aria-hidden="true"><b>${hhmm(p.ev.first)}</b>${esc(p.ev.title)}</span></a>`;
+    }
+    track.innerHTML = html;
+  }
+
+  function render() {
+    const list = edition.filter(matches);
+    const shown = state.minute ? list.slice(0, 5) : list;
+    $("#events").innerHTML = shown.length
+      ? shown.map((ev, i) => (state.minute ? minuteHTML(ev) : cardHTML(ev, i === 0 && ev.rank === 1))).join("")
+      : '<div class="empty"><p>Aucun événement ne correspond à ces filtres.</p><button type="button" class="toolbtn" data-reset>Réinitialiser les filtres</button></div>';
+    const words = $("#events").textContent.trim().split(/\s+/).length;
+    const minutes = Math.max(1, Math.round(words / 230));
+    const filtered = state.themes.size || state.zones.size || state.q.trim();
+    let line;
+    if (!shown.length) line = "";
+    else if (state.minute) line = `L'essentiel en ${plural(shown.length, "événement")} · lecture ≈ ${minutes} min`;
+    else if (filtered) line = `${list.length} sur ${edition.length} événements correspondent à vos filtres · lecture ≈ ${minutes} min`;
+    else line = `Les ${edition.length} événements du jour, classés par nombre d'origines indépendantes · lecture ≈ ${minutes} min`;
+    if (state.sampleNote && line) line += " · maquette : mêmes données d'exemple pour toutes les dates";
+    $("#results").textContent = line;
+    document.body.classList.toggle("is-minute", state.minute);
+    if (!state.minute) renderTimeline(list);
+  }
+
+  // En-tête et coulisses
+  const usedSources = [...new Set(edition.flatMap((ev) => ev.arts.map((a) => a.src)))].map((k) => SOURCES[k]);
+  const totalArticles = edition.reduce((n, ev) => n + ev.arts.length, 0);
+  $("#count-label").textContent = `${edition.length} événements · ${totalArticles} articles · ${usedSources.length} sources`;
+  const stats = [
+    ["Sources ouvertes à l'analyse", usedSources.filter((s) => s.policy === "open").length],
+    ["Médias en liens seulement", usedSources.filter((s) => s.policy === "links").length],
+    ["Médias non collectés (réserve TDM)", 2],
+    ["Tribunes et éditoriaux écartés", 14],
+    ["Contenus sponsorisés écartés", 3],
+  ];
+  $("#stats").innerHTML = stats.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("");
+  document.querySelectorAll("[data-icon]").forEach((el) => el.insertAdjacentHTML("afterbegin", ICON[el.dataset.icon]));
+
+  // Filtres
+  function buildChips(container, dict, set) {
+    container.innerHTML = Object.entries(dict).map(([k, v]) => `<button type="button" class="chip" data-key="${k}" aria-pressed="false">${esc(v)}</button>`).join("");
+    container.addEventListener("click", (e) => {
+      const b = e.target.closest(".chip");
+      if (!b) return;
+      const k = b.dataset.key;
+      if (set.has(k)) set.delete(k); else set.add(k);
+      b.setAttribute("aria-pressed", String(set.has(k)));
+      render();
+    });
+  }
+  buildChips($("#theme-chips"), THEMES, state.themes);
+  buildChips($("#zone-chips"), ZONES, state.zones);
+
+  let qTimer;
+  $("#q").addEventListener("input", (e) => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = e.target.value; render(); }, 120); });
+
+  function resetFilters() {
+    state.themes.clear(); state.zones.clear(); state.q = "";
+    $("#q").value = "";
+    document.querySelectorAll("#theme-chips .chip, #zone-chips .chip").forEach((b) => b.setAttribute("aria-pressed", "false"));
+    render();
+  }
+
+  // Dates (maquette : seules les étiquettes changent)
+  const longDate = (iso) => { const [y, m, d] = iso.split("-").map(Number); const s = new Date(y, m - 1, d).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); return s.charAt(0).toUpperCase() + s.slice(1); };
+  const shortDate = (iso, year) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("fr-FR", year ? { day: "numeric", month: "long", year: "numeric" } : { day: "numeric", month: "long" }); };
+  const dateButtons = document.querySelectorAll("[data-date]");
+  const pressDate = (btn) => dateButtons.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+  function setDay(iso) { $("#date-label").textContent = longDate(iso); state.sampleNote = iso !== "2026-11-17"; render(); }
+  function setPeriod() { $("#date-label").textContent = `Du ${shortDate($("#from-input").value)} au ${shortDate($("#to-input").value, true)}`; state.sampleNote = true; render(); }
+  dateButtons.forEach((btn) => btn.addEventListener("click", () => {
+    pressDate(btn);
+    const mode = btn.dataset.date;
+    $("#period-fields").hidden = mode !== "period";
+    if (mode === "today") { $("#date-input").value = "2026-11-17"; setDay("2026-11-17"); }
+    else if (mode === "yesterday") { $("#date-input").value = "2026-11-16"; setDay("2026-11-16"); }
+    else setPeriod();
+  }));
+  $("#date-input").addEventListener("change", (e) => { if (!e.target.value) return; pressDate(null); $("#period-fields").hidden = true; setDay(e.target.value); });
+  $("#from-input").addEventListener("change", setPeriod);
+  $("#to-input").addEventListener("change", setPeriod);
+
+  // Mode 1 minute
+  $("#minute-btn").addEventListener("click", (e) => {
+    state.minute = !state.minute;
+    e.currentTarget.setAttribute("aria-pressed", String(state.minute));
+    render();
+  });
+
+  // Thème clair / sombre
+  const NEXT = { auto: "light", light: "dark", dark: "auto" };
+  const LABEL = { auto: "Thème : auto", light: "Thème : clair", dark: "Thème : sombre" };
+  let theme = "auto";
+  try { theme = localStorage.getItem("sourcee-theme") || "auto"; } catch (err) { theme = "auto"; }
+  if (!LABEL[theme]) theme = "auto";
+  function applyTheme() {
+    if (theme === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", theme);
+    $("#theme-label").textContent = LABEL[theme];
+  }
+  $("#theme-btn").addEventListener("click", () => {
+    theme = NEXT[theme];
+    try { localStorage.setItem("sourcee-theme", theme); } catch (err) { /* stockage indisponible */ }
+    applyTheme();
+  });
+  applyTheme();
+
+  // Liens fictifs et réinitialisation
+  let toastTimer;
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-reset]")) { resetFilters(); return; }
+    if (e.target.closest("a[data-fake]")) {
+      e.preventDefault();
+      const t = $("#toast");
+      t.textContent = "Lien fictif : dans l'application, il ouvre l'article d'origine.";
+      t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+    }
+  });
+
+  // La frise se redessine dès que sa largeur change (fenêtre redimensionnée, onglet de nouveau visible).
+  let lastTrackWidth = 0;
+  new ResizeObserver(([entry]) => {
+    const w = Math.round(entry.contentRect.width);
+    if (w === lastTrackWidth || state.minute) return;
+    lastTrackWidth = w;
+    renderTimeline(edition.filter(matches));
+  }).observe($("#tl"));
+
+  render();
+})();
+</script>
+</body>
+</html>
