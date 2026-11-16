@@ -1,0 +1,26 @@
+# Dépendances
+node_modules/
+
+# Builds et rapports
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Variables d'environnement : les secrets restent en local
+.env
+.env.*
+!.env.example
+
+# Journaux
+*.log
+npm-debug.log*
+
+# Modèles d'embeddings téléchargés
+.cache/
+
+# Systèmes et éditeurs
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
