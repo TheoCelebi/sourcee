@@ -6,7 +6,7 @@ import { errorMessage, log } from "./log";
 
 const config = loadConfig();
 const { db, close } = createDb(config.databaseUrl);
-const deps = defaultDeps();
+const deps = defaultDeps(config);
 
 // Les tâches s'exécutent l'une après l'autre ; une tâche déjà en attente n'est pas dupliquée.
 let queue: Promise<void> = Promise.resolve();

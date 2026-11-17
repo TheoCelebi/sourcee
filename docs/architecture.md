@@ -117,11 +117,13 @@ Limites connues :
 
 ### Résumé
 
-- Claude Haiku 5.5 via le SDK officiel `@anthropic-ai/sdk` ; clé dans `.env`.
-- Entrée : titres et chapôs des seuls articles `open` de l'événement, numérotés.
+- Claude Haiku 5.5 via le SDK officiel `@anthropic-ai/sdk` (sortie structurée validée par zod, effort `low`) ; clé dans `.env`. Sans clé, l'étape se limite à marquer les événements sans source ouverte.
+- Événements concernés : les 60 premiers de chaque journée, sur deux jours.
+- Entrée : titres et chapôs des seuls articles `open` de l'événement (8 au plus), numérotés. Les titres des sources `links_only` ne sont jamais envoyés au modèle, ce que vérifie un test d'intégration.
 - Sortie structurée (JSON Schema) : titre neutre, 2 à 4 phrases avec les numéros des articles cités, thèmes et zones choisis dans des listes fermées, ou `insufficient`.
 - Contrôles déterministes après génération : numéros valides, nombres présents dans les sources citées, citations reprises mot pour mot. Une phrase qui échoue est retirée.
-- Nouvel appel seulement quand de nouveaux articles `open` rejoignent l'événement ; chaque version est historisée dans `summaries` (modèle, version du prompt, jetons consommés).
+- Nouvel appel seulement quand de nouveaux articles `open` rejoignent l'événement (ou une heure après une erreur) ; chaque version est historisée dans `summaries` (modèle, version du prompt, phrases rejetées et motif, jetons consommés).
+- Un refus du modèle ou une erreur d'API n'efface pas un résumé valide déjà publié ; une clé refusée interrompt la série.
 - Événement sans source `open` : aucun appel au modèle. La carte affiche le titre d'origine, attribué, et les liens ; le thème et la zone viennent des catégories des flux.
 
 ### API

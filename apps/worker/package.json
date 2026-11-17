@@ -8,16 +8,19 @@
     "compliance": "tsx src/cli.ts compliance",
     "collect": "tsx src/cli.ts collect",
     "cluster": "tsx src/cli.ts cluster",
+    "summarize": "tsx src/cli.ts summarize",
     "pipeline": "tsx src/cli.ts pipeline",
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.9.0",
     "@huggingface/transformers": "^4.3.2",
     "@sourcee/db": "*",
     "@sourcee/shared": "*",
     "drizzle-orm": "^0.45.4",
     "node-cron": "^4.6.0",
     "robots-parser": "^3.0.1",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "zod": "^4.6.7"
   }
 }

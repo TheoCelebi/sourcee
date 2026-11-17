@@ -7,15 +7,23 @@ import { SourceInspector } from "./compliance/inspector";
 import type { WorkerConfig } from "./config";
 import { type HttpGet, httpGet } from "./http";
 import { log } from "./log";
+import { createClaudeModel, type SummaryModel } from "./summarize/model";
+import { type SummarizeReport, summarizeEvents } from "./summarize/run";
 
 /** Dépendances externes des tâches, remplaçables dans les tests. */
 export interface JobDeps {
   http: HttpGet;
   embedder: Embedder;
+  /** null si aucune clé d'API n'est configurée : les résumés sont alors désactivés. */
+  model: SummaryModel | null;
 }
 
-export function defaultDeps(): JobDeps {
-  return { http: httpGet, embedder: createEmbedder() };
+export function defaultDeps(config: WorkerConfig): JobDeps {
+  return {
+    http: httpGet,
+    embedder: createEmbedder(),
+    model: createClaudeModel(config.summaryModel),
+  };
 }
 
 export async function runCompliance(
@@ -82,7 +90,33 @@ export async function runClustering(
   return report;
 }
 
-/** Passage horaire : conformité si elle date de plus de 24 h, collecte, regroupement. */
+export async function runSummaries(
+  db: Database,
+  config: WorkerConfig,
+  deps: Pick<JobDeps, "model">,
+): Promise<SummarizeReport> {
+  if (!deps.model) {
+    log.warn("Résumés désactivés : ajoutez ANTHROPIC_API_KEY dans le fichier .env.");
+  }
+  const report = await summarizeEvents(db, {
+    model: deps.model,
+    days: config.summaryDays,
+    topPerDay: config.summaryTopPerDay,
+  });
+  log.info("Résumés terminés", {
+    candidats: report.candidates,
+    resumes: report.summarized,
+    insuffisants: report.insufficient,
+    sans_source_ouverte: report.unavailable,
+    erreurs: report.errors,
+    inchanges: report.skipped,
+    jetons_entree: report.inputTokens,
+    jetons_sortie: report.outputTokens,
+  });
+  return report;
+}
+
+/** Passage horaire : conformité si elle date de plus de 24 h, collecte, regroupement, résumés. */
 export async function runPipeline(
   db: Database,
   config: WorkerConfig,
@@ -91,4 +125,5 @@ export async function runPipeline(
   if (await complianceIsStale(db)) await runCompliance(db, config, deps);
   await runCollection(db, config, deps);
   await runClustering(db, config, deps);
+  await runSummaries(db, config, deps);
 }

@@ -9,6 +9,7 @@ import {
   policyChecks,
   seedDatabase,
   sources,
+  summaries,
 } from "@sourcee/db";
 import { loadRootEnv } from "@sourcee/shared/node";
 import { eq, sql } from "drizzle-orm";
@@ -17,6 +18,8 @@ import { clusterArticles } from "./cluster/run";
 import { collectFeed, loadCollectableFeeds } from "./collect/collect";
 import { runComplianceCheck } from "./compliance/check";
 import { SourceInspector } from "./compliance/inspector";
+import type { SummaryModel } from "./summarize/model";
+import { summarizeEvents } from "./summarize/run";
 import { fakeEmbedder, fakeHttp, rssFeed } from "./testing";
 
 loadRootEnv();
@@ -198,5 +201,84 @@ describe.skipIf(!testUrl)("worker et base de données (intégration)", () => {
       .from(events)
       .where(sql`${events.title} LIKE '%Crimée%'`);
     expect(crimea).toEqual({ articles: 4, origins: 3 });
+  });
+
+  it("résume à partir des seules sources ouvertes et contrôle chaque phrase", async () => {
+    const prompts: string[] = [];
+    const model: SummaryModel = {
+      name: "modele-factice",
+      async summarize(prompt) {
+        prompts.push(prompt);
+        if (!prompt.includes("Crimée")) {
+          return {
+            kind: "ok",
+            summary: { status: "insufficient", title: "", sentences: [], themes: [], zones: [] },
+            inputTokens: 10,
+            outputTokens: 5,
+          };
+        }
+        return {
+          kind: "ok",
+          summary: {
+            status: "ok",
+            title: "Le pont de Crimée touché par des drones",
+            sentences: [
+              {
+                text: "Selon The Guardian, le pont de Crimée a été touché par des drones.",
+                sources: [1],
+              },
+              { text: "D'après Africanews, le pont est endommagé.", sources: [2] },
+              { text: "Le bilan s'élève à 12 morts.", sources: [1] },
+            ],
+            themes: ["international"],
+            zones: ["europe"],
+          },
+          inputTokens: 100,
+          outputTokens: 50,
+        };
+      },
+    };
+
+    const report = await summarizeEvents(handle.db, { model, days: 2, topPerDay: 10 });
+    expect(report).toMatchObject({ summarized: 1, insufficient: 1, unavailable: 1, errors: 0 });
+    // Le Monde ne laisse que titres et liens : son titre n'est jamais envoyé au modèle.
+    expect(prompts.join("\n")).not.toContain("frappe ukrainienne");
+
+    const [crimea] = await handle.db
+      .select({
+        id: events.id,
+        title: events.title,
+        titleFromSource: events.titleFromSource,
+        status: events.summaryStatus,
+        summary: events.summary,
+      })
+      .from(events)
+      .where(sql`${events.title} LIKE '%Crimée%'`);
+    expect(crimea).toMatchObject({
+      title: "Le pont de Crimée touché par des drones",
+      titleFromSource: false,
+      status: "ok",
+    });
+    expect(crimea?.summary?.map((sentence) => sentence.text)).toEqual([
+      "Selon The Guardian, le pont de Crimée a été touché par des drones.",
+      "D'après Africanews, le pont est endommagé.",
+    ]);
+    const [history] = await handle.db
+      .select({ rejected: summaries.rejectedSentences })
+      .from(summaries)
+      .where(eq(summaries.eventId, crimea?.id as number));
+    expect(history?.rejected).toEqual([
+      { text: "Le bilan s'élève à 12 morts.", reason: "nombre absent des sources citées : 12" },
+    ]);
+    const statuses = await handle.db
+      .select({ title: events.title, status: events.summaryStatus })
+      .from(events)
+      .orderBy(events.score);
+    expect(statuses.map((row) => row.status)).toEqual(["insufficient", "unavailable", "ok"]);
+
+    // Sources inchangées : aucun nouvel appel au modèle.
+    const again = await summarizeEvents(handle.db, { model, days: 2, topPerDay: 10 });
+    expect(again).toMatchObject({ summarized: 0, skipped: 2, unavailable: 1 });
+    expect(prompts).toHaveLength(2);
   });
 });

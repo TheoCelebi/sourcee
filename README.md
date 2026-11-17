@@ -61,6 +61,7 @@ Worker (contrôle de conformité quotidien, collecte horaire) :
 npm run compliance -w @sourcee/worker   # contrôle des sources, une fois
 npm run collect -w @sourcee/worker      # collecte des flux, une fois
 npm run cluster -w @sourcee/worker      # regroupement en événements et recoupement
+npm run summarize -w @sourcee/worker    # résumés (nécessite ANTHROPIC_API_KEY)
 npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
 ```
 
@@ -77,7 +78,7 @@ npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
 - [x] Initialisation du dépôt
 - [x] Contrôle de conformité et collecte RSS
 - [x] Regroupement des articles et recoupement
-- [ ] Résumés sourcés
+- [x] Résumés sourcés
 - [ ] API REST
 - [ ] Interface PWA
 
