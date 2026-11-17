@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import type { Database } from "@sourcee/db";
 import { parisDay, THEMES, ZONES } from "@sourcee/shared";
 import cors from "cors";
@@ -13,6 +15,8 @@ export interface AppOptions {
   corsOrigins?: string[];
   /** Horloge injectable pour les tests. */
   now?: () => Date;
+  /** Dossier du build de l'interface : s'il existe, l'API le sert (un seul service à déployer). */
+  webDist?: string;
 }
 
 /** Les éditions changent au plus une fois par heure : un court cache côté client suffit. */
@@ -22,7 +26,8 @@ export function createApp(db: Database, options: AppOptions = {}): Express {
   const today = () => parisDay(options.now?.() ?? new Date());
   const app = express();
   app.disable("x-powered-by");
-  app.use(helmet());
+  // CSP stricte par défaut ; « upgrade-insecure-requests » casserait l'accès local en HTTP.
+  app.use(helmet({ contentSecurityPolicy: { directives: { "upgrade-insecure-requests": null } } }));
   if (options.corsOrigins?.length) app.use("/api", cors({ origin: options.corsOrigins }));
 
   const api = express.Router();
@@ -71,6 +76,30 @@ export function createApp(db: Database, options: AppOptions = {}): Express {
   });
 
   app.use("/api", api);
+
+  const webDist = options.webDist;
+  if (webDist && existsSync(join(webDist, "index.html"))) {
+    app.use(
+      express.static(webDist, {
+        index: false,
+        setHeaders(res, path) {
+          // Fichiers nommés d'après leur contenu : cache long. Le reste est toujours revalidé.
+          res.setHeader(
+            "Cache-Control",
+            path.startsWith(join(webDist, "assets"))
+              ? "public, max-age=31536000, immutable"
+              : "no-cache",
+          );
+        },
+      }),
+    );
+    // Toute autre page (/, /sources…) est rendue par l'application.
+    app.use((req, res, next) => {
+      if (req.method !== "GET" || req.path.startsWith("/api")) return next();
+      res.set("Cache-Control", "no-cache").sendFile(join(webDist, "index.html"));
+    });
+  }
+
   app.use(errorHandler);
   return app;
 }
