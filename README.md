@@ -55,6 +55,14 @@ npm run db:seed           # thèmes, zones, sources et flux
 npm run check             # lint, format, types et tests
 ```
 
+Worker (contrôle de conformité quotidien, collecte horaire) :
+
+```bash
+npm run compliance -w @sourcee/worker   # contrôle des sources, une fois
+npm run collect -w @sourcee/worker      # collecte des flux, une fois
+npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
+```
+
 ## Documentation
 
 - [Architecture](docs/architecture.md) : règles produit, niveaux d'usage des sources, étapes du traitement, API.
@@ -66,7 +74,7 @@ npm run check             # lint, format, types et tests
 - [x] Comparatif des sources et architecture
 - [x] Modèle de données et maquette
 - [x] Initialisation du dépôt
-- [ ] Contrôle de conformité et collecte RSS
+- [x] Contrôle de conformité et collecte RSS
 - [ ] Regroupement des articles et recoupement
 - [ ] Résumés sourcés
 - [ ] API REST

@@ -21,8 +21,7 @@ export interface CatalogSource {
 /**
  * Sources suivies. Le niveau d'usage (open, links_only, excluded) n'est pas fixé ici :
  * il est recalculé chaque jour par le contrôle de conformité (robots.txt, TDMRep).
- * Constat du 17 novembre 2026 : seules les institutions et les médias de la première
- * section n'opposent aucune réserve à l'analyse automatique de leurs contenus.
+ * Résultat du premier contrôle (17 novembre 2026) : voir docs/architecture.md.
  */
 export const CATALOG: CatalogSource[] = [
   // Institutions
@@ -153,7 +152,6 @@ export const CATALOG: CatalogSource[] = [
       {
         url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml",
         language: "en",
-        zone: "asie-pacifique",
       },
     ],
   },

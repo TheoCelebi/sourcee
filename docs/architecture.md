@@ -54,14 +54,17 @@ Si une source perd le niveau `open`, ses chapôs déjà stockés sont effacés.
 
 ### Sources de la V1
 
-Le catalogue complet (flux, langue, groupe, thème et zone par défaut) est dans [`packages/db/src/catalog.ts`](../packages/db/src/catalog.ts). Niveaux attendus d'après le constat du 17 novembre 2026 :
+Le catalogue complet (flux, langue, groupe, thème et zone par défaut) est dans [`packages/db/src/catalog.ts`](../packages/db/src/catalog.ts). Résultat du premier contrôle automatique, le 17 novembre 2026 :
 
-| Niveau attendu | Sources |
-|---|---|
-| `open`, institutions | ONU Info, Commission européenne, Parlement européen, Banque centrale européenne, Insee |
-| `open`, médias | Public Sénat, Africanews, Global Voices, Voice of America, RFE/RL, CNA, South China Morning Post |
-| `links_only` | BBC, Le Monde, France 24, RFI, The Guardian, DW, Al Jazeera, NPR, Euronews, Libération |
-| `excluded` | franceinfo, Le Figaro |
+| Niveau | Sources | Motif |
+|---|---|---|
+| `open`, institutions | Commission européenne, Parlement européen, Banque centrale européenne, Insee | aucune réserve |
+| `open`, médias | Public Sénat, Africanews, Global Voices, Voice of America, CNA, South China Morning Post | aucune réserve |
+| `links_only` | BBC, Le Monde, The Guardian, DW, Al Jazeera, NPR, Euronews, Libération | robots d'IA bloqués |
+| `excluded` | franceinfo, Le Figaro, France 24, RFI | réserve TDM (fichier tdmrep.json ou en-tête) |
+| `excluded` | ONU Info, RFE/RL | flux interdit par robots.txt (`*/news/`, `/api/*`) |
+
+Le contrôle automatique est plus fiable qu'un relevé manuel : le pare-feu de France 24 et de RFI renvoie une page « Access denied » à certains clients HTTP, ce qui masquait leur fichier tdmrep.json lors du premier relevé fait à la main.
 
 Sans restriction mais sans flux RSS trouvé à ce jour, et donc absents de la V1 : info.gouv.fr, vie-publique.fr, Élysée, Assemblée nationale, Sénat, Banque de France, ministère de l'Europe et des Affaires étrangères, OCDE, Unicef, HCR, Arte.
 

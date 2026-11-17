@@ -1,0 +1,21 @@
+{
+  "name": "@sourcee/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "compliance": "tsx src/cli.ts compliance",
+    "collect": "tsx src/cli.ts collect",
+    "pipeline": "tsx src/cli.ts pipeline",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@sourcee/db": "*",
+    "@sourcee/shared": "*",
+    "drizzle-orm": "^0.45.4",
+    "node-cron": "^4.6.0",
+    "robots-parser": "^3.0.1",
+    "rss-parser": "^3.13.0"
+  }
+}

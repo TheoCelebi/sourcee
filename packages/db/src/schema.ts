@@ -57,6 +57,12 @@ export const summaryStatus = pgEnum("summary_status", [
 ]);
 export const verification = pgEnum("verification", ["confirmed", "single_source"]);
 
+export type SourceKind = (typeof sourceKind.enumValues)[number];
+export type UsagePolicy = (typeof usagePolicy.enumValues)[number];
+export type ContentType = (typeof contentType.enumValues)[number];
+export type SummaryStatus = (typeof summaryStatus.enumValues)[number];
+export type Verification = (typeof verification.enumValues)[number];
+
 export const themes = pgTable("themes", {
   id: smallserial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
