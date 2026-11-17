@@ -65,6 +65,12 @@ npm run summarize -w @sourcee/worker    # résumés (nécessite ANTHROPIC_API_KE
 npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
 ```
 
+API REST (port `API_PORT`, 3000 par défaut) :
+
+```bash
+npm run dev -w @sourcee/api             # http://localhost:3000/api/events
+```
+
 ## Documentation
 
 - [Architecture](docs/architecture.md) : règles produit, niveaux d'usage des sources, étapes du traitement, API.
@@ -79,7 +85,7 @@ npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
 - [x] Contrôle de conformité et collecte RSS
 - [x] Regroupement des articles et recoupement
 - [x] Résumés sourcés
-- [ ] API REST
+- [x] API REST
 - [ ] Interface PWA
 
 ## Auteur

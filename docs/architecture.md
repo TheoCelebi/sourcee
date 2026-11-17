@@ -128,10 +128,21 @@ Limites connues :
 
 ### API
 
-- `GET /api/events?from=&to=&themes=&zones=&q=&limit=` : validation des paramètres (zod), top 10 par jour par défaut.
-- `GET /api/events/:id`
-- `GET /api/themes`, `GET /api/zones`, `GET /api/sources` (niveau d'usage et date du dernier contrôle)
-- `GET /api/health`
+Express 5, paramètres validés par zod, messages d'erreur en français, cache HTTP d'une minute. Les types de réponse sont partagés avec l'interface (`packages/shared/src/api.ts`).
+
+| Route | Rôle |
+|---|---|
+| `GET /api/events?from=&to=&themes=&zones=&q=&limit=` | Édition d'une journée ou d'une période (31 jours au plus), `limit` événements par journée (10 par défaut). `themes` et `zones` acceptent plusieurs valeurs séparées par des virgules ; filtrer sur l'Europe inclut la France. `q` cherche chaque mot comme préfixe, sans accents, dans les titres et résumés. |
+| `GET /api/events/:id` | Un événement. |
+| `GET /api/sources` | Sources, niveau d'usage et preuve du dernier contrôle de conformité. |
+| `GET /api/stats?day=` | Coulisses de l'édition : événements, confirmés, articles, tribunes et contenus sponsorisés écartés. |
+| `GET /api/themes`, `GET /api/zones` | Listes fermées des filtres. |
+| `GET /api/health` | État du service et de la base. |
+
+Garanties appliquées par l'API :
+
+- **Pas de source, pas d'affichage :** les articles des sources exclues ne sont jamais renvoyés ; un événement sans article affichable disparaît, tout comme une phrase de résumé dont aucune source n'est affichable.
+- **Repli des doublons :** dans le classement du jour, un événement dont le centroïde ressemble (cosinus ≥ 0,78) à celui d'un événement mieux classé, ou d'un groupe déjà replié sous lui, est replié sous ce dernier (champ `related`). Le seuil a été calibré sur les données du 17 novembre 2026 : les doublons observés dépassaient 0,79, un événement distinct mais voisin atteignait 0,754.
 
 ### Front
 
