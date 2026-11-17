@@ -146,10 +146,13 @@ Garanties appliquées par l'API :
 
 ### Front
 
-- PWA React (Vite) et Tailwind ; dernière édition consultable hors ligne.
-- Pages : édition du jour, méthodologie, sources et conformité.
-- Mode « 1 minute », frise chronologique, thèmes clair et sombre.
-- Les couleurs et typographies de la [maquette](maquette.html) deviennent les jetons du thème Tailwind.
+- React 19, Vite 8 et Tailwind CSS 4 ; données chargées avec TanStack Query ; types de l'API partagés avec le serveur.
+- PWA installable : le service worker précache l'application et les polices, et garde en cache la dernière édition consultée (stratégie « réseau d'abord »).
+- Polices Newsreader et Inter auto-hébergées : aucune requête vers un service tiers.
+- Pages : édition du jour (filtres par date ou période, thèmes, zones, mot-clé, tous reflétés dans l'URL), méthodologie, sources et conformité.
+- Mode « 1 minute », frise de la journée, thèmes clair et sombre, appels de note vers les sources de chaque phrase.
+- Les couleurs et typographies de la [maquette](maquette.html) sont les jetons du thème Tailwind (`apps/web/src/styles.css`).
+- En production, l'API sert aussi l'interface construite (un seul service à déployer), avec une politique de sécurité de contenu stricte.
 
 ## Organisation du code
 

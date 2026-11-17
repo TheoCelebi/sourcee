@@ -1,0 +1,162 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
+
+/* Jetons de la maquette validée : papier, encre, accent rouge ; thème sombre « papier de nuit ». */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-raised: var(--raised);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-accent: var(--accent);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --font-serif: "Newsreader Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+:root {
+  --paper: #f6f1e7;
+  --raised: #fbf8f1;
+  --sunk: #ede6d7;
+  --ink: #1d1b16;
+  --ink-2: #4b463d;
+  --ink-3: #6f695d;
+  --rule: #d8cfbd;
+  --rule-strong: #1d1b16;
+  --accent: #a3201b;
+  --ok: #2d6a43;
+  --ok-bg: #e2eddf;
+  --warn: #8a5300;
+  --warn-bg: #f7e9c8;
+  --info: #24527f;
+  --info-bg: #e1eaf3;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14130f;
+    --raised: #1c1a15;
+    --sunk: #0f0e0b;
+    --ink: #eee7d8;
+    --ink-2: #c4bba9;
+    --ink-3: #9a9282;
+    --rule: #34302a;
+    --rule-strong: #eee7d8;
+    --accent: #e26a5f;
+    --ok: #86c79b;
+    --ok-bg: #18271d;
+    --warn: #e8b55a;
+    --warn-bg: #2d2413;
+    --info: #8db7e2;
+    --info-bg: #16222f;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #14130f;
+  --raised: #1c1a15;
+  --sunk: #0f0e0b;
+  --ink: #eee7d8;
+  --ink-2: #c4bba9;
+  --ink-3: #9a9282;
+  --rule: #34302a;
+  --rule-strong: #eee7d8;
+  --accent: #e26a5f;
+  --ok: #86c79b;
+  --ok-bg: #18271d;
+  --warn: #e8b55a;
+  --warn-bg: #2d2413;
+  --info: #8db7e2;
+  --info-bg: #16222f;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  body {
+    @apply bg-paper font-sans text-ink;
+  }
+  a:hover {
+    @apply text-accent;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .label {
+    @apply font-sans text-[11.5px] leading-none font-semibold tracking-[0.08em] text-ink-3 uppercase;
+  }
+  .chip {
+    @apply cursor-pointer rounded-full border border-rule bg-transparent px-3 py-2 text-[13.5px] leading-none font-medium whitespace-nowrap text-ink hover:border-ink-3;
+  }
+  .chip[aria-pressed="true"] {
+    @apply border-ink bg-ink text-paper;
+  }
+  .double-rule {
+    border-top: 3px double var(--rule-strong);
+  }
+  .event:target {
+    animation: flash 2.2s ease-out;
+  }
+  .src-item:target {
+    @apply bg-warn-bg;
+  }
+  details.also > summary {
+    list-style: none;
+  }
+  details.also > summary::-webkit-details-marker {
+    display: none;
+  }
+  details.also > summary::before {
+    content: "+";
+    @apply inline-block w-4 font-semibold text-accent;
+  }
+  details.also[open] > summary::before {
+    content: "–";
+  }
+  .tl-marker::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 1px;
+    height: var(--stem);
+    background: var(--ink-3);
+  }
+  .tl-marker:hover .tip,
+  .tl-marker:focus-visible .tip {
+    display: block;
+  }
+}
+
+@keyframes flash {
+  from {
+    background: var(--warn-bg);
+  }
+  to {
+    background: transparent;
+  }
+}

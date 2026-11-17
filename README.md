@@ -4,7 +4,7 @@
 
 Sourcé est une application web qui présente chaque jour les événements les plus couverts par la presse, en n'affichant que des informations vérifiables : chaque phrase de résumé renvoie aux articles qui l'appuient, chaque événement indique s'il est confirmé par au moins deux sources indépendantes, et le choix des médias qui refusent l'analyse automatique de leurs contenus est respecté.
 
-**État : en développement.** L'architecture, le modèle de données et la maquette sont terminés ; le développement avance étape par étape (voir la feuille de route).
+**État : V1 fonctionnelle en local** (collecte, regroupement, recoupement, résumés, API et interface) ; déploiement à venir.
 
 ## Principes
 
@@ -65,10 +65,18 @@ npm run summarize -w @sourcee/worker    # résumés (nécessite ANTHROPIC_API_KE
 npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
 ```
 
-API REST (port `API_PORT`, 3000 par défaut) :
+API REST (port `API_PORT`, 3000 par défaut) et interface :
 
 ```bash
-npm run dev -w @sourcee/api             # http://localhost:3000/api/events
+npm run dev -w @sourcee/api             # API : http://localhost:3000/api/events
+npm run dev -w @sourcee/web             # interface : http://localhost:5173
+```
+
+En production, l'API sert l'interface construite :
+
+```bash
+npm run build -w @sourcee/web
+npm run start -w @sourcee/api           # http://localhost:3000
 ```
 
 ## Documentation
@@ -86,7 +94,10 @@ npm run dev -w @sourcee/api             # http://localhost:3000/api/events
 - [x] Regroupement des articles et recoupement
 - [x] Résumés sourcés
 - [x] API REST
-- [ ] Interface PWA
+- [x] Interface PWA
+- [ ] Déploiement (hébergeur à choisir)
+
+Notifications : non prévues dans la V1.
 
 ## Auteur
 
