@@ -1,11 +1,12 @@
 import { createDb } from "@sourcee/db";
 import { schedule } from "node-cron";
 import { loadConfig } from "./config";
-import { runCompliance, runPipeline } from "./jobs";
+import { defaultDeps, runCompliance, runPipeline } from "./jobs";
 import { errorMessage, log } from "./log";
 
 const config = loadConfig();
 const { db, close } = createDb(config.databaseUrl);
+const deps = defaultDeps();
 
 // Les tâches s'exécutent l'une après l'autre ; une tâche déjà en attente n'est pas dupliquée.
 let queue: Promise<void> = Promise.resolve();
@@ -30,11 +31,11 @@ function enqueue(name: string, task: () => Promise<unknown>): void {
 }
 
 const tasks = [
-  schedule("15 5 * * *", () => enqueue("conformité", () => runCompliance(db, config)), {
+  schedule("15 5 * * *", () => enqueue("conformité", () => runCompliance(db, config, deps)), {
     timezone: config.timeZone,
     name: "conformite",
   }),
-  schedule("5 * * * *", () => enqueue("passage horaire", () => runPipeline(db, config)), {
+  schedule("5 * * * *", () => enqueue("passage horaire", () => runPipeline(db, config, deps)), {
     timezone: config.timeZone,
     name: "passage-horaire",
   }),
@@ -43,7 +44,7 @@ const tasks = [
 log.info(
   "Worker démarré : conformité chaque jour à 5 h 15, collecte chaque heure à h+05 (heure de Paris).",
 );
-enqueue("démarrage", () => runPipeline(db, config));
+enqueue("démarrage", () => runPipeline(db, config, deps));
 
 async function shutdown(signal: string): Promise<void> {
   log.info(`${signal} reçu : arrêt après la tâche en cours.`);

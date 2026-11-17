@@ -60,6 +60,7 @@ Worker (contrôle de conformité quotidien, collecte horaire) :
 ```bash
 npm run compliance -w @sourcee/worker   # contrôle des sources, une fois
 npm run collect -w @sourcee/worker      # collecte des flux, une fois
+npm run cluster -w @sourcee/worker      # regroupement en événements et recoupement
 npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
 ```
 
@@ -75,7 +76,7 @@ npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
 - [x] Modèle de données et maquette
 - [x] Initialisation du dépôt
 - [x] Contrôle de conformité et collecte RSS
-- [ ] Regroupement des articles et recoupement
+- [x] Regroupement des articles et recoupement
 - [ ] Résumés sourcés
 - [ ] API REST
 - [ ] Interface PWA

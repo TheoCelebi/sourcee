@@ -7,10 +7,12 @@
     "start": "tsx src/index.ts",
     "compliance": "tsx src/cli.ts compliance",
     "collect": "tsx src/cli.ts collect",
+    "cluster": "tsx src/cli.ts cluster",
     "pipeline": "tsx src/cli.ts pipeline",
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.2",
     "@sourcee/db": "*",
     "@sourcee/shared": "*",
     "drizzle-orm": "^0.45.4",

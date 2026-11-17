@@ -96,14 +96,24 @@ Retiré de la V1 : l'API DOC 2.0 a renvoyé une erreur 429 à chaque essai, les 
 
 ### Regroupement
 
-- Embedding multilingue du titre, calculé localement (transformers.js, modèle de type `paraphrase-multilingual-MiniLM-L12-v2`, 384 dimensions) : rien n'est envoyé à un service tiers.
-- Rattachement à l'événement le plus proche du même jour (fuseau Europe/Paris), en comparant l'embedding de l'article aux centroïdes des événements (opérateur de distance cosinus de pgvector), si la similarité dépasse un seuil calibré sur des données réelles ; sinon, création d'un événement.
+- Embedding multilingue du titre, calculé localement (transformers.js, modèle `paraphrase-multilingual-MiniLM-L12-v2` quantifié, 384 dimensions, stocké dans pgvector) : rien n'est envoyé à un service tiers.
+- Regroupement hiérarchique ascendant en lien moyen (UPGMA), journée par journée (fuseau Europe/Paris) : deux groupes fusionnent si la similarité cosinus moyenne entre leurs titres atteint 0,65 et si aucune paire de titres ne descend sous 0,5, ce qui empêche l'enchaînement de sujets voisins.
+- Les événements déjà formés sont figés : ils accueillent les nouveaux articles qui leur ressemblent, mais ne fusionnent jamais entre eux, pour que leur identifiant et leur résumé restent stables d'une heure à l'autre.
+- Calibration, faite le 17 novembre 2026 sur 440 titres réels : un rattachement au centroïde (seuils 0,62 à 0,74) fusionnait des événements distincts (vote du Sénat sur les retraites et réforme présentée par une candidate) ; le lien moyen avec similarité minimale les sépare. Le modèle `multilingual-e5-small`, essayé à titre de comparaison, ne séparait pas mieux les cas difficiles.
+
+Limites connues :
+
+- À partir des seuls titres, la similarité capte le sujet plus que l'événement ; deux faits voisins publiés le même jour peuvent se retrouver ensemble.
+- Le modèle rapproche plus facilement deux titres d'une même langue : un événement couvert en français et en anglais peut former deux groupes. L'API replie ces doublons dans le classement du jour.
+- Le statut « confirmé » reste prudent : il exige deux origines indépendantes à l'intérieur d'un même groupe.
 
 ### Recoupement et classement
 
 - Origine d'un article : l'agence détectée, sinon le groupe de la source.
 - `independent_origins` : nombre d'origines distinctes parmi les articles `news` des médias.
-- Score du jour calculé à partir des origines indépendantes, du nombre d'articles et de la fraîcheur ; les dix premiers forment l'édition.
+- Score du jour : `10 × origines indépendantes + log2(1 + nombre d'articles)` ; les dix premiers forment l'édition.
+- Thèmes et zones d'un événement sans résumé : indices partagés par une majorité stricte de ses articles (deux au plus).
+- Titre d'un événement sans résumé : celui de l'article le plus proche du centre du groupe, affiché comme titre d'origine attribué.
 
 ### Résumé
 

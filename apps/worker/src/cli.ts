@@ -1,10 +1,11 @@
 import { createDb } from "@sourcee/db";
 import { loadConfig } from "./config";
-import { runCollection, runCompliance, runPipeline } from "./jobs";
+import { defaultDeps, runClustering, runCollection, runCompliance, runPipeline } from "./jobs";
 
 const COMMANDS = {
   compliance: runCompliance,
   collect: runCollection,
+  cluster: runClustering,
   pipeline: runPipeline,
 } as const;
 
@@ -17,7 +18,7 @@ if (!Object.hasOwn(COMMANDS, name)) {
 const config = loadConfig();
 const { db, close } = createDb(config.databaseUrl);
 try {
-  await COMMANDS[name as keyof typeof COMMANDS](db, config);
+  await COMMANDS[name as keyof typeof COMMANDS](db, config, defaultDeps());
 } finally {
   await close();
 }

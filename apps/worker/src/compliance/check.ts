@@ -126,6 +126,13 @@ async function applyResult(
         .set({ excerpt: null })
         .where(and(eq(articles.sourceId, sourceId), isNotNull(articles.excerpt)));
     }
+    // Une source exclue ne doit plus être analysée : ses articles quittent les événements.
+    if (policy === "excluded") {
+      await tx
+        .update(articles)
+        .set({ eventId: null, embedding: null })
+        .where(and(eq(articles.sourceId, sourceId), isNotNull(articles.eventId)));
+    }
     return policy;
   });
 }

@@ -2,6 +2,7 @@ import {
   articles,
   createDb,
   type DbHandle,
+  events,
   feeds,
   fetchRuns,
   migrateDatabase,
@@ -12,10 +13,11 @@ import {
 import { loadRootEnv } from "@sourcee/shared/node";
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { clusterArticles } from "./cluster/run";
 import { collectFeed, loadCollectableFeeds } from "./collect/collect";
 import { runComplianceCheck } from "./compliance/check";
 import { SourceInspector } from "./compliance/inspector";
-import { fakeHttp, rssFeed } from "./testing";
+import { fakeEmbedder, fakeHttp, rssFeed } from "./testing";
 
 loadRootEnv();
 const testUrl = process.env.DATABASE_URL_TEST;
@@ -114,5 +116,87 @@ describe.skipIf(!testUrl)("worker et base de données (intégration)", () => {
       },
     ]);
     expect(await handle.db.$count(fetchRuns, eq(fetchRuns.feedId, onu.id))).toBe(3);
+  });
+
+  it("regroupe les articles en événements et compte les origines indépendantes", async () => {
+    const now = new Date();
+    const sourceIds = new Map(
+      (await handle.db.select({ id: sources.id, slug: sources.slug }).from(sources)).map((s) => [
+        s.slug,
+        s.id,
+      ]),
+    );
+    const insert = async (
+      slug: string,
+      title: string,
+      minutesAgo: number,
+      agency: string | null = null,
+    ) => {
+      const sourceId = sourceIds.get(slug) as number;
+      const [feed] = await handle.db
+        .select({ id: feeds.id })
+        .from(feeds)
+        .where(eq(feeds.sourceId, sourceId));
+      await handle.db.insert(articles).values({
+        sourceId,
+        feedId: feed?.id as number,
+        url: `https://exemple.org/${slug}/${minutesAgo}`,
+        title,
+        language: "fr",
+        publishedAt: new Date(now.getTime() - minutesAgo * 60_000),
+        agency,
+      });
+    };
+    // Le Monde (liens seulement), The Guardian et Africanews (ouverts dans ce scénario).
+    await insert("le-monde", "Pont de Crimée : frappe ukrainienne", 50);
+    await insert("the-guardian", "Crimée : le pont touché par des drones", 40);
+    await insert("africanews", "Crimée : le pont endommagé", 30, "AFP");
+    await insert("le-monde", "Rougeole : les États-Unis perdent leur statut", 20);
+
+    const embedder = fakeEmbedder(["crimée", "rougeole", "conseil de sécurité"]);
+    const first = await clusterArticles(handle.db, { embedder, maxAgeHours: 72, now });
+    expect(first).toMatchObject({ embedded: 5, created: 3, joined: 0 });
+
+    const stored = await handle.db
+      .select({
+        title: events.title,
+        articles: events.articleCount,
+        origins: events.independentOrigins,
+        verification: events.verification,
+      })
+      .from(events)
+      .orderBy(events.score);
+    expect(stored).toEqual([
+      // Source officielle seule : aucune origine indépendante.
+      {
+        title: "Le Conseil de sécurité adopte une résolution",
+        articles: 1,
+        origins: 0,
+        verification: "single_source",
+      },
+      {
+        title: "Rougeole : les États-Unis perdent leur statut",
+        articles: 1,
+        origins: 1,
+        verification: "single_source",
+      },
+      // Le Monde, The Guardian et une dépêche AFP reprise par Africanews : trois origines.
+      {
+        title: expect.stringContaining("Crimée"),
+        articles: 3,
+        origins: 3,
+        verification: "confirmed",
+      },
+    ]);
+
+    // Un nouvel article rejoint l'événement existant au lieu d'en créer un autre.
+    await insert("the-guardian", "Crimée : premières images du pont", 10);
+    const second = await clusterArticles(handle.db, { embedder, maxAgeHours: 72, now });
+    expect(second).toMatchObject({ embedded: 1, created: 0, joined: 1 });
+    const [crimea] = await handle.db
+      .select({ articles: events.articleCount, origins: events.independentOrigins })
+      .from(events)
+      .where(sql`${events.title} LIKE '%Crimée%'`);
+    expect(crimea).toEqual({ articles: 4, origins: 3 });
   });
 });

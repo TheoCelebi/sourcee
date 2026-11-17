@@ -1,4 +1,21 @@
+import { EMBEDDING_DIMENSIONS } from "@sourcee/db";
+import type { Embedder } from "./cluster/embedder";
 import type { HttpGet, HttpRequest, HttpResponse } from "./http";
+
+/**
+ * Embedder factice et déterministe : un axe par mot-clé reconnu dans le titre ;
+ * les autres titres reçoivent chacun un axe distinct (donc aucun rapprochement).
+ */
+export function fakeEmbedder(keywords: string[]): Embedder {
+  return async (texts) =>
+    texts.map((text) => {
+      const vector = new Array<number>(EMBEDDING_DIMENSIONS).fill(0);
+      const index = keywords.findIndex((keyword) => text.toLowerCase().includes(keyword));
+      const hash = [...text].reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) % 9973, 7);
+      vector[index >= 0 ? index : keywords.length + (hash % 300)] = 1;
+      return vector;
+    });
+}
 
 export interface FakeRoute {
   status?: number;
