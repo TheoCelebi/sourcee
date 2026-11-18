@@ -3,7 +3,7 @@ import type { ApiArticle, ApiEvent } from "@sourcee/shared";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { EventCard, MinuteCard } from "./components/EventCard";
-import { layoutTimeline } from "./components/Timeline";
+import { fitZoom, layoutTimeline, MAX_ZOOM } from "./components/Timeline";
 import { readState, toQuery, writeState } from "./state";
 
 afterEach(cleanup);
@@ -163,5 +163,30 @@ describe("frise de la journée", () => {
       [3, 75, 0],
     ]);
     expect(layout.ticks).toHaveLength(9);
+  });
+
+  it("sépare les événements proches et resserre les graduations quand on zoome", () => {
+    const close = [
+      event({ id: 1, firstPublishedAt: "2026-11-17T11:00:00Z" }),
+      event({ id: 2, firstPublishedAt: "2026-11-17T11:10:00Z" }),
+    ];
+    const zoomed = layoutTimeline(close, 1000 * 8);
+    expect(zoomed.markers.map((marker) => marker.top)).toEqual([0, 0]);
+    expect(zoomed.ticks[1]?.minutes).toBe(30);
+  });
+
+  it("ajuste le zoom à la plage des événements, avec une marge", () => {
+    expect(
+      fitZoom([
+        event({ id: 1, firstPublishedAt: "2026-11-17T08:00:00Z" }),
+        event({ id: 2, firstPublishedAt: "2026-11-17T10:00:00Z" }),
+      ]),
+    ).toEqual({ zoom: 8, start: 510 });
+    // Un seul événement : une heure à l'écran au plus près.
+    expect(fitZoom([event({ firstPublishedAt: "2026-11-17T11:00:00Z" })])).toEqual({
+      zoom: MAX_ZOOM,
+      start: 690,
+    });
+    expect(fitZoom([])).toEqual({ zoom: 1, start: 0 });
   });
 });

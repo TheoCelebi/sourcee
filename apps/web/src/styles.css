@@ -146,10 +146,6 @@
     height: var(--stem);
     background: var(--ink-3);
   }
-  .tl-marker:hover .tip,
-  .tl-marker:focus-visible .tip {
-    display: block;
-  }
 }
 
 @keyframes flash {
