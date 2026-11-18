@@ -171,7 +171,7 @@ export async function summarizeEvents(
   const zoneIds = new Map((await db.select().from(zones)).map((z) => [z.slug, z.id]));
   const done: number[] = [];
 
-  await mapWithConcurrency(jobs, options.concurrency ?? 3, async (job) => {
+  await mapWithConcurrency(jobs, options.concurrency ?? model.concurrency ?? 3, async (job) => {
     const result = await model.summarize(buildUserPrompt(job.sources));
     const base = {
       eventId: job.eventId,

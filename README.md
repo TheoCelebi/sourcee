@@ -39,7 +39,7 @@ flowchart LR
 | Interface | React, Vite, Tailwind CSS, PWA installable |
 | API | Node.js, Express, TypeScript, validation zod |
 | Données | PostgreSQL 17, pgvector, Drizzle ORM |
-| Traitement | worker planifié (node-cron), embeddings multilingues calculés localement (transformers.js), API Claude pour les résumés |
+| Traitement | worker planifié (node-cron), embeddings multilingues calculés localement (transformers.js), Claude Haiku pour les résumés, via l'API ou Claude Code |
 | Qualité | Vitest, ESLint, Prettier, GitHub Actions |
 
 ## Démarrage
@@ -61,9 +61,22 @@ Worker (contrôle de conformité quotidien, collecte horaire) :
 npm run compliance -w @sourcee/worker   # contrôle des sources, une fois
 npm run collect -w @sourcee/worker      # collecte des flux, une fois
 npm run cluster -w @sourcee/worker      # regroupement en événements et recoupement
-npm run summarize -w @sourcee/worker    # résumés (nécessite ANTHROPIC_API_KEY)
+npm run summarize -w @sourcee/worker    # résumés (Claude Code ou clé d'API, voir ci-dessous)
 npm run start -w @sourcee/worker        # planificateur (tâches automatiques)
 ```
+
+### Accès au modèle pour les résumés
+
+`SUMMARY_PROVIDER` choisit comment le worker appelle Claude :
+
+| Valeur | Fonctionnement |
+|---|---|
+| `auto` (défaut) | l'API si `ANTHROPIC_API_KEY` est renseignée, sinon Claude Code s'il est installé, sinon résumés désactivés |
+| `api` | API Claude, facturée à l'usage : la voie prévue pour un site public |
+| `claude-code` | `claude -p` sur la machine, avec l'abonnement Claude de la personne connectée : **usage personnel uniquement** |
+| `off` | aucun résumé ; collecte et recoupement continuent |
+
+En mode Claude Code, chaque résumé lance `claude -p --model claude-haiku-5-5 --effort low --tools "" --no-session-persistence` avec le prompt système et le schéma de réponse : le modèle n'a accès à aucun outil ni fichier, rien n'est gardé dans l'historique, et la réponse passe par les mêmes contrôles qu'avec l'API. Claude Code doit être connecté (`claude` puis `/login`) ; `CLAUDE_BIN` indique son chemin s'il n'est pas dans le `PATH`.
 
 API REST (port `API_PORT`, 3000 par défaut) et interface :
 

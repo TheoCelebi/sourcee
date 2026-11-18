@@ -10,15 +10,22 @@ export type ModelResult =
 /** Génère un résumé à partir du prompt utilisateur. Remplaçable dans les tests. */
 export interface SummaryModel {
   name: string;
+  /** Appels simultanés conseillés (3 par défaut). */
+  concurrency?: number;
   summarize(userPrompt: string): Promise<ModelResult>;
 }
 
 /** Erreur qui doit interrompre toute la série (clé absente ou refusée). */
 export class FatalModelError extends Error {}
 
-/** Client Claude ; null si aucune clé n'est configurée (les résumés sont alors désactivés). */
-export function createClaudeModel(model: string): SummaryModel | null {
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) return null;
+/** Une clé d'API (ou un jeton) est-elle configurée ? */
+export function hasApiKey(): boolean {
+  return !!(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+}
+
+/** Client de l'API Claude ; null si aucune clé n'est configurée. */
+export function createApiModel(model: string): SummaryModel | null {
+  if (!hasApiKey()) return null;
   const client = new Anthropic();
 
   return {

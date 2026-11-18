@@ -7,14 +7,14 @@ import { SourceInspector } from "./compliance/inspector";
 import type { WorkerConfig } from "./config";
 import { type HttpGet, httpGet } from "./http";
 import { log } from "./log";
-import { createClaudeModel, type SummaryModel } from "./summarize/model";
+import { createSummaryModel, type SummaryModel } from "./summarize/provider";
 import { type SummarizeReport, summarizeEvents } from "./summarize/run";
 
 /** Dépendances externes des tâches, remplaçables dans les tests. */
 export interface JobDeps {
   http: HttpGet;
   embedder: Embedder;
-  /** null si aucune clé d'API n'est configurée : les résumés sont alors désactivés. */
+  /** null si aucun accès au modèle n'est disponible : les résumés sont alors désactivés. */
   model: SummaryModel | null;
 }
 
@@ -22,7 +22,7 @@ export function defaultDeps(config: WorkerConfig): JobDeps {
   return {
     http: httpGet,
     embedder: createEmbedder(),
-    model: createClaudeModel(config.summaryModel),
+    model: createSummaryModel(config),
   };
 }
 
@@ -96,7 +96,13 @@ export async function runSummaries(
   deps: Pick<JobDeps, "model">,
 ): Promise<SummarizeReport> {
   if (!deps.model) {
-    log.warn("Résumés désactivés : ajoutez ANTHROPIC_API_KEY dans le fichier .env.");
+    log.warn(
+      config.summaryProvider === "off"
+        ? "Résumés désactivés (SUMMARY_PROVIDER=off)."
+        : "Résumés désactivés : connectez Claude Code (claude puis /login) ou ajoutez ANTHROPIC_API_KEY dans .env.",
+    );
+  } else {
+    log.info(`Résumés avec ${deps.model.name}`);
   }
   const report = await summarizeEvents(db, {
     model: deps.model,
