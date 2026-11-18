@@ -1,4 +1,5 @@
 import { Footer, TopBar } from "./components/Layout";
+import { PullToRefresh } from "./components/PullToRefresh";
 import { EditionPage } from "./pages/EditionPage";
 import { MethodologyPage } from "./pages/MethodologyPage";
 import { SourcesPage } from "./pages/SourcesPage";
@@ -16,6 +17,7 @@ export function App() {
 
   return (
     <>
+      <PullToRefresh />
       <a
         href="#contenu"
         className="sr-only rounded bg-ink px-3 py-2 text-paper focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-20"

@@ -3,6 +3,7 @@ import type { ApiArticle, ApiEvent } from "@sourcee/shared";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { EventCard, MinuteCard } from "./components/EventCard";
+import { PULL_THRESHOLD, resist } from "./components/PullToRefresh";
 import { fitZoom, layoutTimeline, MAX_ZOOM } from "./components/Timeline";
 import { readState, toQuery, writeState } from "./state";
 
@@ -188,5 +189,15 @@ describe("frise de la journée", () => {
       start: 690,
     });
     expect(fitZoom([])).toEqual({ zoom: 1, start: 0 });
+  });
+});
+
+describe("tirer pour actualiser", () => {
+  it("freine le geste et le plafonne", () => {
+    expect(resist(-20)).toBe(0);
+    expect(resist(100)).toBe(50);
+    // Il faut tirer d'environ 144 px pour atteindre le seuil.
+    expect(resist(PULL_THRESHOLD * 2)).toBe(PULL_THRESHOLD);
+    expect(resist(1000)).toBe(110);
   });
 });
